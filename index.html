@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRESTIGE-Cinema, Curated</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        netflix: {
+                            black: '#141414',
+                            dark: '#181818',
+                            red: '#E50914',
+                            lightGray: '#e5e5e5'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                        'slide-left': 'slideLeft 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideLeft: {
+                            '0%': { width: '0', opacity: '0' },
+                            '100%': { width: '200px', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="antialiased min-h-screen flex flex-col bg-[#141414] text-white overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full top-0 z-40 transition-all duration-300 bg-gradient-to-b from-[#141414]/95 to-transparent" id="navbar">
+        <div class="px-4 sm:px-10 lg:px-14">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex-shrink-0 flex items-center cursor-pointer group text-netflix-red font-black text-2xl tracking-tighter" onclick="switchTab('home')">
+                        PRESTIGE
+                    </div>
+                    
+                    <div class="hidden md:flex space-x-6 text-sm font-medium" id="nav-links">
+                        <a href="#" onclick="switchTab('home')" id="nav-home" class="text-white transition-colors">Home</a>
+                        <a href="#" onclick="switchTab('series')" id="nav-series" class="text-gray-300 hover:text-white transition-colors">Shows</a>
+                        <a href="#" onclick="switchTab('movies')" id="nav-movies" class="text-gray-300 hover:text-white transition-colors">Movies</a>
+                         <a href="#" onclick="switchTab('roadmaps')" id="nav-roadmaps" class="text-gray-300 hover:text-white transition-colors flex items-center gap-1.5"> Roadmaps</a>
+                        <a href="#" onclick="switchTab('lists')" id="nav-lists" class="text-gray-300 hover:text-white transition-colors">Lists</a>
+                        <a href="#" onclick="switchTab('quotes')" id="nav-quotes" class="auth-required text-gray-300 hover:text-white transition-colors">Quotes</a>
+                        <a href="#" onclick="switchTab('watchlist')" id="nav-watchlist" class="auth-required text-gray-300 hover:text-white transition-colors">Watchlist</a>
+                        <a href="#" onclick="switchTab('log')" id="nav-log" class="auth-required text-gray-300 hover:text-white transition-colors">Log</a>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4 md:space-x-6 text-white relative" id="navbar-actions">
+                    <div class="relative flex items-center">
+                        <input type="text" id="search-input" oninput="handleSearch(this.value)" class="hidden bg-black/50 border border-gray-600 text-white text-sm rounded px-3 py-1 mr-2 focus:outline-none focus:border-gray-400 transition-colors w-40 md:w-56 origin-right" placeholder="Titles, people, genres">
+                        <button onclick="toggleSearch(event)" class="hover:text-gray-300 transition-colors z-10"><i class="fa-solid fa-search text-lg"></i></button>
+                    </div>
+
+                    <div id="auth-logged-out" class="hidden">
+                        <button onclick="openAuthModal()" class="bg-netflix-red hover:bg-red-700 text-white px-4 py-1.5 rounded text-sm font-bold transition-colors">Sign In</button>
+                    </div>
+
+                    <div id="auth-logged-in" class="flex items-center space-x-4 md:space-x-6">
+                        <div class="relative">
+                            <button onclick="toggleMenu(event, 'notifications-menu')" class="hover:text-gray-300 transition-colors"><i class="fa-regular fa-bell text-lg"></i></button>
+                            <div id="notifications-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-4 w-72 bg-[#181818] border border-gray-800 rounded shadow-2xl py-2 z-50">
+                                <div class="px-4 py-2 border-b border-gray-800 font-bold">Notifications</div>
+                                <div class="p-4 text-center text-gray-500 text-sm">No new notifications.</div>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <div onclick="toggleMenu(event, 'profile-menu')" class="w-8 h-8 rounded bg-gradient-to-br from-indigo-500 to-purple-600 cursor-pointer border border-gray-700 hover:border-gray-400 transition-colors flex items-center justify-center shadow-lg">
+                                <img id="navbar-avatar" src="https://ui-avatars.com/api/?name=User&background=1a1a1a&color=gray" class="w-8 h-8 rounded border border-gray-700 object-cover cursor-pointer hover:border-white transition-colors" onclick="toggleMenu(event, 'profile-menu')">
+                            </div>
+                            <div id="profile-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-4 w-48 bg-[#181818] border border-gray-800 rounded shadow-2xl py-2 z-50">
+                               <a onclick="switchTab('profile')" class="block px-4 py-2 text-sm text-gray-300 hover:bg-[#2a2a2a] hover:text-white cursor-pointer">Profile</a>
+                               <a href="#" onclick="switchTab('help')" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800 transition-colors">Help Center</a>
+                                <button onclick="logout()" class="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800 transition-colors">Sign out of Prestige</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+   <main class="flex-grow pb-12 px-4 sm:px-10 lg:px-14 w-full max-w-[2000px] mx-auto z-10">
+        
+        <!-- HOME SECTION -->
+        <section id="home-section" class="tab-content block animate-fade-in">
+            <!-- Welcome Banner -->
+            <div class="mb-10">
+                <h1 id="welcome-text" class="text-xl md:text-2xl font-black text-white tracking-tighter uppercase mb-2">Welcome to Prestige</h1>
+                <div class="border-l-2 border-netflix-red pl-3 py-0.5">
+                    <p id="welcome-quote" class="text-gray-400 text-sm md:text-base italic font-light tracking-wide"></p>
+                </div>
+            </div>
+
+            <div class="mb-12" id="movies-container-wrapper">
+                <h2 class="text-white text-xl md:text-2xl font-bold mb-6 tracking-wide flex items-center">
+                    Trending Movies <i class="fa-solid fa-chevron-right text-sm ml-3 text-gray-400 mt-1"></i>
+                </h2>
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-3 md:gap-4" id="movies-grid"></div>
+            </div>
+
+            <div class="mb-12" id="series-container-wrapper">
+                <h2 class="text-white text-xl md:text-2xl font-bold mb-6 tracking-wide flex items-center">
+                    Trending Series <i class="fa-solid fa-chevron-right text-sm ml-3 text-gray-400 mt-1"></i>
+                </h2>
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-3 md:gap-4" id="series-grid"></div>
+            </div>
+            
+            <div class="mb-12" id="upcoming-movies-container-wrapper">
+                <h2 class="text-white text-xl md:text-2xl font-bold mb-6 tracking-wide flex items-center">
+                    Upcoming Movies <i class="fa-solid fa-chevron-right text-sm ml-3 text-gray-400 mt-1"></i>
+                </h2>
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-3 md:gap-4" id="upcoming-movies-grid"></div>
+            </div>
+           <!-- Recent Stories -->
+            <div class="mb-12 border-t border-gray-800 pt-10 mt-8" id="recent-stories-container">
+                <h2 class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-6 flex items-center">
+                    Recent Stories <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="recent-stories-grid">
+                    <!-- Stories injected here via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ROADMAPS SECTION -->
+        <section id="roadmaps-section" class="tab-content hidden animate-fade-in">
+            <div class="mb-12 max-w-[2000px] mx-auto">
+                <div class="border-b border-gray-800 pb-4 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h2 class="text-white text-3xl md:text-4xl font-black tracking-tighter uppercase mb-2">Director Roadmaps</h2>
+                        <p class="text-gray-400 text-sm md:text-base max-w-2xl leading-relaxed">Track your progress through the filmographies of legendary directors. Watch every film to reach 100% and permanently unlock their mastery badge.</p>
+                    </div>
+                </div>
+                <div id="roadmaps-container" class="flex flex-col gap-10"></div>
+            </div>
+        </section>
+
+     <!-- HELP CENTER SECTION -->
+        <section id="help-section" class="tab-content hidden animate-fade-in pb-24">
+            <div class="max-w-4xl mx-auto pt-12 px-4 md:px-0">
+                <div class="border-b border-gray-800/60 pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h2 class="text-gray-100 text-3xl md:text-4xl font-black tracking-tight mb-2">Help Center</h2>
+                        <p class="text-gray-500 text-sm font-medium tracking-wide">Everything you need to know about tracking your cinematic life.</p>
+                    </div>
+                    <div class="text-netflix-red text-4xl opacity-20 hidden md:block">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    
+                    <!-- FAQ Card 1 -->
+                    <div class="bg-[#111] border border-gray-800/60 hover:border-gray-600 rounded-sm p-6 md:p-8 transition-colors group cursor-default">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-map-location-dot text-netflix-red text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                            <h3 class="text-gray-200 font-bold text-sm tracking-wide uppercase">Director Roadmaps</h3>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">Search for any director via the Roadmaps tab. Prestige automatically cross-references their entire filmography with your logged films. Reach 100% to earn a mastery badge.</p>
+                    </div>
+                    
+                    <!-- FAQ Card 2 -->
+                    <div class="bg-[#111] border border-gray-800/60 hover:border-gray-600 rounded-sm p-6 md:p-8 transition-colors group cursor-default">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-cloud text-netflix-red text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                            <h3 class="text-gray-200 font-bold text-sm tracking-wide uppercase">Cloud Sync & Safety</h3>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">All watchlists, logs, and roadmaps are securely synced to Cloud Firestore. You can log in from any device, or clear your browser cache, and your data will instantly populate.</p>
+                    </div>
+
+                    <!-- FAQ Card 3 -->
+                    <div class="bg-[#111] border border-gray-800/60 hover:border-gray-600 rounded-sm p-6 md:p-8 transition-colors group cursor-default">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-database text-netflix-red text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                            <h3 class="text-gray-200 font-bold text-sm tracking-wide uppercase">Missing Films</h3>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">Prestige utilizes the global TMDB API. If an obscure indie film or short is missing from your search, add it to TMDB directly. It will appear on Prestige within 24 hours.</p>
+                    </div>
+
+                    <!-- FAQ Card 4 -->
+                    <div class="bg-[#111] border border-gray-800/60 hover:border-gray-600 rounded-sm p-6 md:p-8 transition-colors group cursor-default">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-sliders text-netflix-red text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                            <h3 class="text-gray-200 font-bold text-sm tracking-wide uppercase">Vibe Search (Coming Soon)</h3>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">Standard genres are obsolete. We are currently building a Pacing and Mood slider system that lets you filter your Watchlist by exact atmospheric conditions.</p>
+                    </div>
+
+                    <!-- FAQ Card 5 -->
+                    <div class="bg-[#111] border border-gray-800/60 hover:border-gray-600 rounded-sm p-6 md:p-8 transition-colors group cursor-default">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-star text-netflix-red text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                            <h3 class="text-gray-200 font-bold text-sm tracking-wide uppercase">Profile Favorites</h3>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">Navigate to your Profile tab and click any of the empty dashed boxes under "Favorite Films" or "Favorite Shows" to pin your ultimate masterpieces to your personal shelf.</p>
+                    </div>
+
+                    <!-- FAQ Card 6 -->
+                    <div class="bg-[#111] border border-gray-800/60 hover:border-gray-600 rounded-sm p-6 md:p-8 transition-colors group cursor-default">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-eye-slash text-netflix-red text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                            <h3 class="text-gray-200 font-bold text-sm tracking-wide uppercase">Spoiler Protection</h3>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">When writing a review on a media page, simply check the "Contains Spoilers" box before saving. Prestige will automatically flag your review in the community feed.</p>
+                    </div>
+
+                    <!-- FAQ Card 7 -->
+                    <div class="bg-[#111] border border-gray-800/60 hover:border-gray-600 rounded-sm p-6 md:p-8 transition-colors group cursor-default">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-layer-group text-netflix-red text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                            <h3 class="text-gray-200 font-bold text-sm tracking-wide uppercase">Curated Lists</h3>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">Head to the Lists tab to create custom collections (e.g., "Best Sci-Fi of the 90s"). You can add films directly from their media pages using the "Add to list" dropdown menu.</p>
+                    </div>
+
+                    <!-- FAQ Card 8 -->
+                    <div class="bg-[#111] border border-gray-800/60 hover:border-gray-600 rounded-sm p-6 md:p-8 transition-colors group cursor-default">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-calendar-check text-netflix-red text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                            <h3 class="text-gray-200 font-bold text-sm tracking-wide uppercase">TV Episode Tracking</h3>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">Unlike movies, TV series are tracked on an episode-by-episode basis. Scroll down on any Series page to rate individual episodes, mark them watched, or write specific reviews.</p>
+                    </div>
+
+                </div>
+                </div>
+            </div>
+        </section>
+        <!-- WATCHLIST SECTION -->
+        <section id="watchlist-section" class="tab-content hidden animate-fade-in">
+            <div class="mb-12">
+                <h2 class="text-white text-2xl font-bold mb-6 tracking-wide border-b border-gray-800 pb-4">My Watchlist</h2>
+                <div id="watchlist-container" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-3 md:gap-4"></div>
+            </div>
+        </section>
+
+        <!-- PROFILE SECTION -->
+        <section id="profile-section" class="tab-content hidden animate-fade-in">
+            <div class="max-w-3xl mx-auto mb-12">
+                <!-- Header -->
+                <div class="flex items-center gap-5 mb-8 pb-8 border-b border-gray-800">
+                    <img id="profile-avatar" src="https://i.pravatar.cc/150?img=11" class="w-20 h-20 md:w-24 md:h-24 rounded-full border border-gray-700 object-cover shadow-lg">
+                    <div class="flex-grow">
+                        <h2 id="profile-username" class="text-white text-2xl md:text-3xl font-black tracking-tight mb-1 uppercase">User</h2>
+                        <p id="profile-bio" class="text-gray-400 text-[13px] max-w-xl leading-relaxed">No bio added yet.</p>
+                        <div class="mt-2 flex gap-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                            <span id="profile-location"><i class="fa-solid fa-location-dot mr-1"></i>NA</span>
+                            <span id="profile-age"><i class="fa-solid fa-calendar mr-1"></i> N/A</span>
+                        </div>
+                    </div>
+                    <button onclick="openEditProfileModal()" class="bg-[#2a2a2a] hover:bg-gray-700 text-white px-4 py-1.5 rounded text-xs font-bold transition-colors border border-gray-600 shrink-0">Edit Profile</button>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-3 mb-10">
+                    <div class="bg-[#1a1a1a] py-4 rounded-md border border-gray-800 text-center shadow-sm">
+                        <div id="stat-films" class="text-2xl font-bold text-white mb-0.5">0</div>
+                        <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Films</div>
+                    </div>
+                    <div class="bg-[#1a1a1a] py-4 rounded-md border border-gray-800 text-center shadow-sm">
+                        <div id="stat-shows" class="text-2xl font-bold text-white mb-0.5">0</div>
+                        <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Shows</div>
+                    </div>
+                    <div class="bg-[#1a1a1a] py-4 rounded-md border border-gray-800 text-center shadow-sm">
+                        <div id="stat-lists" class="text-2xl font-bold text-white mb-0.5">0</div>
+                        <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Lists</div>
+                    </div>
+                </div>
+
+                <!-- Top Genres Analytics -->
+                <div class="mb-10">
+                    <h3 class="text-gray-500 uppercase tracking-wider text-[10px] font-bold mb-3 border-b border-gray-800 pb-1.5">Top Genres</h3>
+                    <div class="bg-[#1a1a1a] border border-gray-800 rounded-lg p-6 shadow-sm">
+                        <div id="genre-bar-container" class="w-full h-2.5 rounded-full flex overflow-hidden mb-5 bg-gray-800 shadow-inner"></div>
+                        <div id="genre-legend" class="flex flex-wrap gap-x-6 gap-y-3 text-[10px] uppercase font-bold tracking-wider"></div>
+                    </div>
+                </div>
+
+                <!-- Favorites -->
+                <div class="mb-10">
+                    <h3 class="text-gray-500 uppercase tracking-wider text-[10px] font-bold mb-3 border-b border-gray-800 pb-1.5">Favorite Films</h3>
+                    <div class="grid grid-cols-4 gap-2 md:gap-4" id="profile-fav-films"></div>
+                </div>
+                <div class="mb-10">
+                    <h3 class="text-gray-500 uppercase tracking-wider text-[10px] font-bold mb-3 border-b border-gray-800 pb-1.5">Favorite Shows</h3>
+                    <div class="grid grid-cols-4 gap-2 md:gap-4" id="profile-fav-series"></div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div>
+                    <h3 class="text-gray-500 uppercase tracking-wider text-[10px] font-bold mb-3 border-b border-gray-800 pb-1.5">Recent Activity</h3>
+                    <div id="profile-activity" class="flex flex-col gap-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOG SECTION -->
+        <section id="log-section" class="tab-content hidden animate-fade-in">
+            <div class="mb-12 max-w-5xl mx-auto">
+                <h2 class="text-white text-2xl font-bold mb-6 tracking-wide border-b border-gray-800 pb-4">My Log</h2>
+                <div id="log-container" class="flex flex-col gap-2"></div>
+            </div>
+        </section>
+        
+        <!-- LISTS SECTION -->
+        <section id="lists-section" class="tab-content hidden animate-fade-in">
+            <div class="mb-12 max-w-7xl mx-auto">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-4 mb-6">
+                    <h2 class="text-white text-2xl font-bold tracking-wide">Curated Lists</h2>
+                    <button onclick="openCreateListModal()" class="auth-required bg-netflix-red hover:bg-red-700 text-white px-5 py-2 rounded text-sm font-bold transition-colors shadow-lg">
+                        <i class="fa-solid fa-plus mr-2"></i>Create List
+                    </button>
+                </div>
+                <div id="lists-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            </div>
+        </section>
+        
+        <!-- QUOTES SECTION -->
+        <section id="quotes-section" class="tab-content hidden animate-fade-in">
+            <div class="mb-12 max-w-4xl mx-auto">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-4 mb-6">
+                    <h2 class="text-white text-2xl font-bold tracking-wide flex items-center">Favorite Quotes</h2>
+                    <button onclick="openCreateQuoteModal()" class="auth-required bg-netflix-red hover:bg-red-700 text-white px-5 py-2 rounded text-sm font-bold transition-colors shadow-lg">
+                        <i class="fa-solid fa-plus mr-2"></i>Add Quote
+                    </button>
+                </div>
+                <div id="quotes-container"></div>
+            </div>
+        </section>
+
+        <!-- LIST DETAIL SECTION -->
+        <section id="list-detail-section" class="tab-content hidden animate-fade-in">
+            <div class="mb-12 max-w-[2000px] mx-auto">
+                <button onclick="switchTab('lists')" class="text-gray-400 hover:text-white transition-colors mb-6 flex items-center font-medium">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Back to Lists
+                </button>
+                <div class="flex flex-col sm:flex-row sm:items-start justify-between border-b border-gray-800 pb-6 mb-6 gap-4">
+                    <div>
+                        <h2 id="list-detail-title" class="text-white text-3xl font-bold tracking-wide mb-2">List Title</h2>
+                        <p id="list-detail-desc" class="text-gray-400 text-lg">List description</p>
+                    </div>
+                    <button onclick="openAddMediaModal()" class="auth-required bg-[#222] border border-gray-600 hover:border-white text-white px-4 py-2 rounded text-sm font-bold transition-colors shadow-lg whitespace-nowrap">
+                        <i class="fa-solid fa-plus mr-2"></i>Add Movie or Series
+                    </button>
+                </div>
+                <div id="list-detail-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-3 md:gap-4"></div>
+            </div>
+        </section>
+
+       <!-- SERIES TAB -->
+        <section id="series-section" class="tab-content hidden animate-fade-in">
+            <h2 class="text-2xl font-black text-white mb-6 uppercase tracking-tighter">Shows</h2>
+            
+            <!-- Series Filter Bar -->
+            <div class="flex flex-col xl:flex-row items-stretch xl:items-center gap-3 mb-10 bg-[#1a1a1a] p-3 rounded border border-gray-800">
+                <span class="text-gray-500 text-xs font-bold uppercase tracking-wider xl:mr-2 hidden xl:block"><i class="fa-solid fa-filter mr-1"></i> Filter</span>
+                
+                <!-- Flex-1 makes all 4 boxes exactly equal width -->
+                <div class="flex flex-col sm:flex-row gap-3 flex-grow">
+                    <select id="filter-genre-series" onchange="applyFilters('series')" class="flex-1 bg-[#111] border border-gray-700 text-gray-300 rounded px-3 py-2 text-sm focus:border-netflix-red focus:outline-none cursor-pointer hover:border-gray-500 transition-colors">
+                        <option value="all">All Genres</option>
+                        <option value="10759">Action & Adventure</option>
+                        <option value="35">Comedy</option>
+                        <option value="18">Drama</option>
+                        <option value="10765">Sci-Fi & Fantasy</option>
+                        <option value="9648">Mystery</option>
+                        <option value="80">Crime</option>
+                        <option value="16">Animation</option>
+                    </select>
+
+                    <select id="filter-year-series" onchange="applyFilters('series')" class="flex-1 bg-[#111] border border-gray-700 text-gray-300 rounded px-3 py-2 text-sm focus:border-netflix-red focus:outline-none cursor-pointer hover:border-gray-500 transition-colors">
+                        <option value="all">Any Year</option>
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2020s">2020s (2020-2029)</option>
+                        <option value="2010s">2010s (2010-2019)</option>
+                        <option value="older">Older</option>
+                    </select>
+
+                    <select id="filter-rating-series" onchange="applyFilters('series')" class="flex-1 bg-[#111] border border-gray-700 text-gray-300 rounded px-3 py-2 text-sm focus:border-netflix-red focus:outline-none cursor-pointer hover:border-gray-500 transition-colors">
+                        <option value="all">Any Rating</option>
+                        <option value="9">5 Stars</option>
+                        <option value="8">4+ Stars</option>
+                        <option value="6">3+ Stars</option>
+                        <option value="4">2+ Stars</option>
+                        <option value="2">1+ Stars</option>
+                    </select>
+
+                    <select id="filter-sort-series" onchange="applyFilters('series')" class="flex-1 bg-[#111] border border-gray-700 text-gray-300 rounded px-3 py-2 text-sm focus:border-netflix-red focus:outline-none cursor-pointer hover:border-gray-500 transition-colors">
+                        <option value="popularity.desc">Most Popular</option>
+                        <option value="vote_average.desc">Highest Rated</option>
+                        <option value="first_air_date.desc">Newest First</option>
+                        <option value="first_air_date.asc">Oldest First</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2 xl:ml-2 justify-end sm:justify-end mt-2 sm:mt-0">
+                    <button onclick="clearFilters('series')" class="text-gray-400 hover:text-white px-3 py-2 rounded text-sm font-bold transition-colors">
+                        Clear
+                    </button>
+                    <button onclick="recommendMedia('series')" class="bg-netflix-red hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-bold transition-colors shadow-lg flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-dice"></i> Surprise Me
+                    </button>
+                </div>
+            </div>
+            
+          <!-- Default Category Rows -->
+            <div id="series-categories" class="flex flex-col gap-12">
+                
+                <div>
+                    <h3 class="text-white text-lg md:text-xl font-bold mb-4 border-l-4 border-netflix-red pl-3 tracking-wide">Popular Shows This Week</h3>
+                    <div class="relative group">
+                        <button onclick="scrollRow('row-series-trend', -1)" class="absolute left-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-left text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                        <div class="flex gap-3 md:gap-4 overflow-x-auto snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" id="row-series-trend"></div>
+                        <button onclick="scrollRow('row-series-trend', 1)" class="absolute right-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-right text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white text-lg md:text-xl font-bold mb-4 border-l-4 border-netflix-red pl-3 tracking-wide">Best Shows of 2026</h3>
+                    <div class="relative group">
+                        <button onclick="scrollRow('row-series-2026', -1)" class="absolute left-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-left text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                        <div class="flex gap-3 md:gap-4 overflow-x-auto snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" id="row-series-2026"></div>
+                        <button onclick="scrollRow('row-series-2026', 1)" class="absolute right-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-right text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white text-lg md:text-xl font-bold mb-4 border-l-4 border-netflix-red pl-3 tracking-wide">Emmy Winning & Critically Acclaimed</h3>
+                    <div class="relative group">
+                        <button onclick="scrollRow('row-series-top', -1)" class="absolute left-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-left text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                        <div class="flex gap-3 md:gap-4 overflow-x-auto snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" id="row-series-top"></div>
+                        <button onclick="scrollRow('row-series-top', 1)" class="absolute right-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-right text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white text-lg md:text-xl font-bold mb-4 border-l-4 border-netflix-red pl-3 tracking-wide">HBO Masterpieces</h3>
+                    <div class="relative group">
+                        <button onclick="scrollRow('row-series-hbo', -1)" class="absolute left-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-left text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                        <div class="flex gap-3 md:gap-4 overflow-x-auto snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" id="row-series-hbo"></div>
+                        <button onclick="scrollRow('row-series-hbo', 1)" class="absolute right-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-right text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                    </div>
+                </div>
+
+            </div>
+            <!-- Filtered Grid (Hidden until filter is used) -->
+            <div id="series-filtered-results" class="hidden">
+                <h3 class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-6 border-b border-gray-800 pb-2">Filter Results</h3>
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3 md:gap-4" id="all-series-grid"></div>
+                
+                <!-- Series Load More Button -->
+                <div id="load-more-series" class="hidden flex justify-center mt-10 mb-4">
+                    <button onclick="applyFilters('series', true)" class="bg-[#1a1a1a] hover:bg-gray-800 text-white border border-gray-700 px-8 py-3 rounded-full text-sm font-bold transition-colors shadow-lg flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-down"></i> Load More
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- MOVIES TAB -->
+        <section id="movies-section" class="tab-content hidden animate-fade-in">
+            <h2 class="text-2xl font-black text-white mb-6 uppercase tracking-tighter">Movies</h2>
+            
+         <!-- Movies Filter Bar -->
+            <div class="flex flex-col xl:flex-row items-stretch xl:items-center gap-3 mb-10 bg-[#1a1a1a] p-3 rounded border border-gray-800">
+                <span class="text-gray-500 text-xs font-bold uppercase tracking-wider xl:mr-2 hidden xl:block"><i class="fa-solid fa-filter mr-1"></i> Filter</span>
+                
+                <!-- Flex-1 makes all 4 boxes exactly equal width -->
+                <div class="flex flex-col sm:flex-row gap-3 flex-grow">
+                    <select id="filter-genre-movie" onchange="applyFilters('movie')" class="flex-1 bg-[#111] border border-gray-700 text-gray-300 rounded px-3 py-2 text-sm focus:border-netflix-red focus:outline-none cursor-pointer hover:border-gray-500 transition-colors">
+                        <option value="all">All Genres</option>
+                        <option value="28">Action</option>
+                        <option value="35">Comedy</option>
+                        <option value="18">Drama</option>
+                        <option value="878">Sci-Fi</option>
+                        <option value="27">Horror</option>
+                        <option value="10749">Romance</option>
+                        <option value="53">Thriller</option>
+                        <option value="16">Animation</option>
+                    </select>
+
+                    <select id="filter-year-movie" onchange="applyFilters('movie')" class="flex-1 bg-[#111] border border-gray-700 text-gray-300 rounded px-3 py-2 text-sm focus:border-netflix-red focus:outline-none cursor-pointer hover:border-gray-500 transition-colors">
+                        <option value="all">Any Year</option>
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2020s">2020s (2020-2029)</option>
+                        <option value="2010s">2010s (2010-2019)</option>
+                        <option value="older">Older</option>
+                    </select>
+
+                    <select id="filter-rating-movie" onchange="applyFilters('movie')" class="flex-1 bg-[#111] border border-gray-700 text-gray-300 rounded px-3 py-2 text-sm focus:border-netflix-red focus:outline-none cursor-pointer hover:border-gray-500 transition-colors">
+                        <option value="all">Any Rating</option>
+                        <option value="9">5 Stars</option>
+                        <option value="8">4+ Stars</option>
+                        <option value="6">3+ Stars</option>
+                        <option value="4">2+ Stars</option>
+                        <option value="2">1+ Stars</option>
+                    </select>
+
+                    <select id="filter-sort-movie" onchange="applyFilters('movie')" class="flex-1 bg-[#111] border border-gray-700 text-gray-300 rounded px-3 py-2 text-sm focus:border-netflix-red focus:outline-none cursor-pointer hover:border-gray-500 transition-colors">
+                        <option value="popularity.desc">Most Popular</option>
+                        <option value="vote_average.desc">Highest Rated</option>
+                        <option value="primary_release_date.desc">Newest First</option>
+                        <option value="primary_release_date.asc">Oldest First</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2 xl:ml-2 justify-end sm:justify-end mt-2 sm:mt-0">
+                    <button onclick="clearFilters('movie')" class="text-gray-400 hover:text-white px-3 py-2 rounded text-sm font-bold transition-colors">
+                        Clear
+                    </button>
+                    <button onclick="recommendMedia('movie')" class="bg-netflix-red hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-bold transition-colors shadow-lg flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-dice"></i> Surprise Me
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Default Category Rows -->
+            <div id="movie-categories" class="flex flex-col gap-12">
+                
+                <div>
+                    <h3 class="text-white text-lg md:text-xl font-bold mb-4 border-l-4 border-netflix-red pl-3 tracking-wide">Popular Movies This Week</h3>
+                    <div class="relative group">
+                        <button onclick="scrollRow('row-movies-trend', -1)" class="absolute left-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-left text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                        <div class="flex gap-3 md:gap-4 overflow-x-auto snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" id="row-movies-trend"></div>
+                        <button onclick="scrollRow('row-movies-trend', 1)" class="absolute right-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-right text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white text-lg md:text-xl font-bold mb-4 border-l-4 border-netflix-red pl-3 tracking-wide">Best Movies of 2026</h3>
+                    <div class="relative group">
+                        <button onclick="scrollRow('row-movies-2026', -1)" class="absolute left-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-left text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                        <div class="flex gap-3 md:gap-4 overflow-x-auto snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" id="row-movies-2026"></div>
+                        <button onclick="scrollRow('row-movies-2026', 1)" class="absolute right-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-right text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white text-lg md:text-xl font-bold mb-4 border-l-4 border-netflix-red pl-3 tracking-wide">Oscar Winning & Critically Acclaimed</h3>
+                    <div class="relative group">
+                        <button onclick="scrollRow('row-movies-top', -1)" class="absolute left-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-left text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                        <div class="flex gap-3 md:gap-4 overflow-x-auto snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" id="row-movies-top"></div>
+                        <button onclick="scrollRow('row-movies-top', 1)" class="absolute right-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-right text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white text-lg md:text-xl font-bold mb-4 border-l-4 border-netflix-red pl-3 tracking-wide">Directed by Christopher Nolan</h3>
+                    <div class="relative group">
+                        <button onclick="scrollRow('row-movies-nolan', -1)" class="absolute left-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-left text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                        <div class="flex gap-3 md:gap-4 overflow-x-auto snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" id="row-movies-nolan"></div>
+                        <button onclick="scrollRow('row-movies-nolan', 1)" class="absolute right-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-right text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white text-lg md:text-xl font-bold mb-4 border-l-4 border-netflix-red pl-3 tracking-wide">Directed by David Fincher</h3>
+                    <div class="relative group">
+                        <button onclick="scrollRow('row-movies-fincher', -1)" class="absolute left-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-left text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                        <div class="flex gap-3 md:gap-4 overflow-x-auto snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" id="row-movies-fincher"></div>
+                        <button onclick="scrollRow('row-movies-fincher', 1)" class="absolute right-0 top-0 z-20 w-12 h-full opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center text-white hover:text-netflix-red"><i class="fa-solid fa-chevron-right text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform hover:scale-125"></i></button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Filtered Grid (Hidden until filter is used) -->
+            <div id="movie-filtered-results" class="hidden">
+                <h3 class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-6 border-b border-gray-800 pb-2">Filter Results</h3>
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3 md:gap-4" id="all-movies-grid"></div>
+                
+                <!-- Movies Load More Button -->
+                <div id="load-more-movie" class="hidden flex justify-center mt-10 mb-4">
+                    <button onclick="applyFilters('movie', true)" class="bg-[#1a1a1a] hover:bg-gray-800 text-white border border-gray-700 px-8 py-3 rounded-full text-sm font-bold transition-colors shadow-lg flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-down"></i> Load More
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- STORY DETAIL SECTION -->
+        <section id="story-detail-section" class="tab-content hidden animate-fade-in pb-24">
+            <div class="max-w-3xl mx-auto pt-28 px-4 md:px-0">
+                <button onclick="switchTab('home')" class="text-gray-400 hover:text-white transition-colors mb-8 flex items-center font-medium text-sm group drop-shadow-md">
+                    <i class="fa-solid fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Home
+                </button>
+                
+                <div class="mb-8">
+                    <div id="story-page-tag" class="inline-block bg-netflix-red text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded mb-4 shadow">Tag</div>
+                    <h1 id="story-page-title" class="text-3xl md:text-5xl font-serif font-bold text-white mb-6 leading-tight tracking-tight">Title</h1>
+                    
+                    <div class="flex items-center gap-3 border-b border-gray-800 pb-6">
+                        <div class="w-8 h-8 rounded-full bg-gray-700 overflow-hidden flex items-center justify-center shrink-0 border border-gray-600">
+                            <i class="fa-solid fa-pen-nib text-xs text-gray-400"></i>
+                        </div>
+                        <span id="story-page-author" class="text-gray-300 text-xs font-bold tracking-widest uppercase">Author</span>
+                        <span class="text-gray-600 text-sm">•</span>
+                        <span id="story-page-date" class="text-gray-500 text-xs tracking-wider uppercase">Date</span>
+                    </div>
+                </div>
+                
+                <img id="story-page-image" src="" class="w-full aspect-video object-cover rounded-xl mb-12 shadow-2xl border border-gray-800">
+                
+                <div id="story-page-content" class="text-gray-300 font-serif text-lg leading-relaxed space-y-6">
+                    <!-- Article text injected here -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- FULL PAGE MEDIA DETAIL -->
+        <section id="media-detail-section" class="tab-content hidden animate-fade-in pb-24">
+            
+            <!-- Global Cinematic Backdrop -->
+            <div class="absolute top-0 left-0 w-full h-[70vh] -z-10 overflow-hidden bg-[#141414]">
+                <div class="absolute inset-0 bg-gradient-to-r from-[#141414] via-transparent to-[#141414] z-10"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/60 to-transparent z-10"></div>
+                <div class="absolute inset-0 bg-gradient-to-b from-[#141414]/80 via-transparent to-transparent h-32 z-10"></div>
+                <img id="page-backdrop" src="" alt="Backdrop" class="w-full h-full object-cover object-top opacity-80 saturate-70">
+            </div>
+
+            <!-- Content pushed down to perfectly overlap the backdrop fade -->
+            <div class="max-w-[1100px] mx-auto pt-[40vh] md:pt-[45vh] relative z-20">
+                <button onclick="closeMediaPage()" class="text-gray-400 hover:text-white transition-colors mb-6 flex items-center font-medium text-sm group drop-shadow-md">
+                    <i class="fa-solid fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back
+                </button>
+                <div class="flex flex-col md:flex-row gap-8 lg:gap-12">
+                    
+                   <!-- Left: Poster & Trailer & Providers -->
+                    <div class="w-40 md:w-56 flex-shrink-0 mx-auto md:mx-0">
+                        <img id="page-poster" src="" alt="Poster" class="w-full rounded border border-gray-700 shadow-[0_0_20px_rgba(0,0,0,0.6)] mb-4">
+                        <button onclick="playTrailer()" class="w-full bg-[#1e1e1e] border border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800 py-2 rounded text-sm font-medium flex items-center justify-center transition-colors mb-4">
+                            <i class="fa-solid fa-play mr-2"></i> Trailer
+                        </button>
+                        
+                        <!-- Where to Watch -->
+                        <div id="page-providers-container" class="hidden">
+                            <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-3 pt-4 border-t border-gray-800 text-center md:text-left">Stream On</h4>
+                            <div id="page-providers" class="flex flex-wrap justify-center md:justify-start gap-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Center: Details -->
+                    <div class="flex-grow pt-2">
+                        <h1 class="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-2 tracking-tight"><span id="page-title">Title</span> <span id="page-year" class="text-gray-400 text-2xl md:text-4xl font-light font-sans ml-2"></span></h1>
+                        
+                        <div class="flex flex-wrap items-center gap-3 mb-4 text-xs text-gray-400 font-medium" id="page-meta"></div>
+                        
+                        <!-- Tagline -->
+                        <p id="page-tagline" class="text-gray-400 italic text-sm md:text-base mb-4 font-serif hidden"></p>
+                        
+                        <p id="page-synopsis" class="text-gray-300 text-sm md:text-base leading-relaxed mb-8 font-serif"></p>
+
+                        <div class="space-y-3 text-sm border-t border-gray-800 pt-6">
+                            <div class="flex">
+                                <span class="w-24 flex-shrink-0 text-gray-500 uppercase tracking-wider text-[10px] font-bold mt-0.5">Directed By</span>
+                                <span class="text-gray-200" id="page-director">Name</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-24 flex-shrink-0 text-gray-500 uppercase tracking-wider text-[10px] font-bold mt-0.5">Cast</span>
+                                <span class="text-gray-200" id="page-cast">Cast</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-24 flex-shrink-0 text-gray-500 uppercase tracking-wider text-[10px] font-bold mt-0.5">Genres</span>
+                                <span class="text-gray-200" id="page-genres">Genres</span>
+                            </div>
+                        </div>
+
+                        <!-- Episodes (Series Only) -->
+                        <div id="page-episodes-section" class="hidden mt-8 border-t border-gray-800 pt-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 uppercase tracking-wider text-[10px] font-bold">Episodes</span>
+                                <select id="season-selector" class="bg-[#1e1e1e] text-white border border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-500" onchange="changeSeason(this.value)"></select>
+                            </div>
+                            <div id="episodes-list" class="flex flex-col gap-1 max-h-64 overflow-y-auto pr-2 custom-scrollbar bg-[#141414]"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Action Panel -->
+                    <div class="w-full md:w-72 flex-shrink-0">
+                        
+                        <!-- Global Rating Widget -->
+                        <div class="mb-6">
+                            <div class="flex justify-between items-end border-b border-[#44505e] pb-1 mb-2">
+                                <span class="text-[#8da0b3] text-[11px] tracking-[0.15em] uppercase font-semibold">Ratings</span>
+                                <span class="text-[#8da0b3] text-[10px] tracking-[0.1em] uppercase" id="page-fans">Fans</span>
+                            </div>
+                            <div class="flex items-end gap-3 pb-1">
+                                <i class="fa-solid fa-star text-[10px] text-netflix-red mb-1"></i>
+                                <div class="flex items-end gap-[2px] h-9 flex-grow" id="page-histogram">
+                                    <!-- Bars injected here -->
+                                </div>
+                                <div class="flex text-[8px] text-netflix-red mb-1 gap-[1px]">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                                <div class="text-[28px] leading-none font-light text-[#9ab0c5] w-12 text-right tracking-tighter" id="page-global-rating">3.3</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#202020] rounded-lg border border-gray-800 shadow-xl overflow-hidden">
+                            <div id="page-logging-active">
+                                <!-- Top Icons -->
+                                <div class="grid grid-cols-3 gap-0 border-b border-gray-800">
+                                    <button id="action-log-btn" onclick="toggleWatchedAction(event)" class="py-4 flex flex-col items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors text-gray-400">
+                                        <i class="fa-solid fa-eye text-2xl"></i>
+                                        <span class="text-[10px] uppercase font-bold tracking-wider">Watched</span>
+                                    </button>
+                                    <button id="action-like-btn" onclick="toggleLikedAction(event)" class="py-4 flex flex-col items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors text-gray-400 border-l border-r border-gray-800">
+                                        <i class="fa-solid fa-heart text-2xl"></i>
+                                        <span class="text-[10px] uppercase font-bold tracking-wider">Like</span>
+                                    </button>
+                                    <button id="action-watchlist-btn" onclick="toggleWatchlistAction()" class="py-4 flex flex-col items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors text-gray-400">
+                                        <i class="fa-solid fa-clock text-2xl"></i>
+                                        <span class="text-[10px] uppercase font-bold tracking-wider">Watchlist</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- Rate -->
+                                <div class="p-4 text-center border-b border-gray-800">
+                                    <span class="block text-gray-500 text-[10px] uppercase tracking-wider font-bold mb-2">Rate</span>
+                                    <div class="star-container flex flex-row-reverse justify-center text-gray-600 text-2xl star-rating" id="page-master-stars">
+                                        <i class="fa-solid fa-star hover:text-netflix-red" data-rating="5"></i>
+                                        <i class="fa-solid fa-star hover:text-netflix-red" data-rating="4"></i>
+                                        <i class="fa-solid fa-star hover:text-netflix-red" data-rating="3"></i>
+                                        <i class="fa-solid fa-star hover:text-netflix-red" data-rating="2"></i>
+                                        <i class="fa-solid fa-star hover:text-netflix-red" data-rating="1"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Text Links Options -->
+                                <div class="flex flex-col text-[13px] text-gray-400 font-medium bg-[#1a1a1a]">
+                                    <button onclick="shareReview()" class="py-3 px-4 border-b border-gray-800 hover:bg-[#2a2a2a] hover:text-white transition-colors text-center w-full">Share this review</button>
+                                    <button onclick="scrollToReview()" class="py-3 px-4 border-b border-gray-800 hover:bg-[#2a2a2a] hover:text-white transition-colors text-center w-full">Log/Review...</button>
+                                    
+                                    <div class="relative w-full">
+                                        <button onclick="toggleListDropdown(event)" class="py-3 px-4 w-full hover:bg-[#2a2a2a] hover:text-white transition-colors text-center">Add film to lists...</button>
+                                        <div id="add-to-list-dropdown" onclick="event.stopPropagation()" class="hidden absolute top-full left-0 w-full bg-[#222] border border-gray-700 rounded shadow-2xl py-2 z-50">
+                                            <div class="px-4 py-2 border-b border-gray-700 font-bold text-xs text-gray-400 uppercase tracking-wider">Add to List</div>
+                                            <div id="dropdown-lists-container" class="max-h-48 overflow-y-auto custom-scrollbar"></div>
+                                            <button onclick="openCreateListModal(); closeListDropdown();" class="w-full text-left px-4 py-3 border-t border-gray-700 text-xs text-netflix-red font-bold hover:bg-gray-600 transition-colors">
+                                                <i class="fa-solid fa-plus mr-2"></i>New List
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="page-logging-prompt" class="hidden text-center py-6">
+                                <i class="fa-solid fa-lock text-3xl text-gray-600 mb-3"></i>
+                                <h3 class="font-bold text-white text-sm mb-1">Sign in to log, rate or review</h3>
+                                <button onclick="openAuthModal()" class="mt-4 w-full bg-netflix-red hover:bg-red-700 text-[#141414] py-2 rounded text-sm font-bold transition-colors">Sign In</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+               <!-- Centered Review Section at Bottom -->
+                <div id="review-section" class="hidden mt-16 pt-10 border-t border-gray-800 w-full max-w-2xl mx-auto flex flex-col items-center">
+                    <h3 id="log-heading" class="text-white text-xl font-bold mb-6 font-serif">Review</h3>
+                    <textarea id="log-comment" class="w-full bg-[#111] text-gray-300 border border-gray-700 rounded p-4 text-sm focus:outline-none focus:border-netflix-red mb-4 resize-none custom-scrollbar" rows="4" placeholder="Add a review..."></textarea>
+                    
+                    <div class="flex items-center justify-between w-full">
+                        <label class="flex items-center text-gray-400 text-xs cursor-pointer">
+                            <input type="checkbox" id="log-spoilers" class="mr-2 rounded bg-gray-800 border-gray-600"> Contains Spoilers
+                        </label>
+                        <button onclick="saveLog()" class="bg-netflix-red hover:bg-red-700 text-white px-8 py-2.5 rounded text-sm font-bold transition-colors shadow-lg">Save Review</button>
+                    </div>
+                </div>
+
+                <!-- Community Reviews -->
+                <div id="page-reviews-section" class="hidden mt-16 pt-10 border-t border-gray-800 w-full max-w-4xl mx-auto">
+                    <h3 class="text-gray-500 uppercase tracking-wider text-[11px] font-bold mb-6">Community Reviews</h3>
+                    <div id="page-reviews-list" class="flex flex-col gap-4"></div>
+                </div>
+
+                <!-- Media Section (Videos, Backdrops, Posters) -->
+                <div id="page-media-section" class="hidden mt-16 pt-10 border-t border-gray-800 w-full">
+                    <div class="flex items-center justify-between mb-6 border-b border-gray-800 pb-2">
+                        <h3 class="text-gray-500 uppercase tracking-wider text-[11px] font-bold">Media</h3>
+                        <div class="flex gap-4 md:gap-8 text-xs font-bold text-gray-500">
+                            <button id="tab-videos" class="text-white border-b-2 border-netflix-red pb-2 -mb-[9px] transition-colors" onclick="switchMediaTab('videos')">Videos <span id="count-videos" class="font-normal text-gray-400">0</span></button>
+                            <button id="tab-backdrops" class="hover:text-white pb-2 border-b-2 border-transparent -mb-[9px] transition-colors" onclick="switchMediaTab('backdrops')">Backdrops <span id="count-backdrops" class="font-normal text-gray-400">0</span></button>
+                            <button id="tab-posters" class="hover:text-white pb-2 border-b-2 border-transparent -mb-[9px] transition-colors" onclick="switchMediaTab('posters')">Posters <span id="count-posters" class="font-normal text-gray-400">0</span></button>
+                        </div>
+                    </div>
+                    
+                    <div id="media-videos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-2"></div>
+                    <div id="media-backdrops" class="hidden flex gap-4 overflow-x-auto custom-scrollbar pb-4 snap-x"></div>
+                    <div id="media-posters" class="hidden flex gap-4 overflow-x-auto custom-scrollbar pb-4 snap-x"></div>
+                </div>
+
+                <!-- Related Media Grid -->
+                <div id="page-related-section" class="hidden mt-16 pt-10 border-t border-gray-800 w-full">
+                    <h3 class="text-gray-500 uppercase tracking-wider text-[11px] font-bold mb-4">Similar Titles</h3>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3 md:gap-4" id="page-related-grid"></div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Edit Profile Modal -->
+        <div id="edit-profile-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in">
+            <div class="bg-[#141414] border border-gray-800 p-8 rounded-xl w-full max-w-lg relative shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+                <button onclick="closeEditProfileModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <h2 class="text-2xl font-black text-white mb-6 tracking-tighter uppercase">Edit Profile</h2>
+                <form onsubmit="handleProfileSave(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-2">Profile Picture</label>
+                        <div class="flex items-center gap-4">
+                            <img id="edit-avatar-preview" src="" class="w-12 h-12 rounded-full border border-gray-700 object-cover shrink-0">
+                            <input type="file" id="edit-avatar" accept="image/*" onchange="openCropper(event)" class="w-full bg-[#111] border border-gray-800 text-gray-400 rounded p-1.5 text-sm focus:border-netflix-red focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-xs file:font-bold file:bg-[#2a2a2a] file:text-white hover:file:bg-gray-700 transition-colors cursor-pointer">
+                        </div>
+                    </div>
+                    <div><label class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Username</label><input type="text" id="edit-username" class="w-full bg-[#111] border border-gray-800 text-white rounded p-3 text-sm focus:border-netflix-red focus:outline-none" required></div>
+                    <div><label class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Email</label><input type="email" id="edit-email" class="w-full bg-[#111] border border-gray-800 text-white rounded p-3 text-sm focus:border-netflix-red focus:outline-none" required></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Age</label><input type="number" id="edit-age" class="w-full bg-[#111] border border-gray-800 text-white rounded p-3 text-sm focus:border-netflix-red focus:outline-none"></div>
+                        <div><label class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Gender</label>
+                            <select id="edit-gender" class="w-full bg-[#111] border border-gray-800 text-white rounded p-3 text-sm focus:border-netflix-red focus:outline-none appearance-none">
+                                <option>Not Specified</option><option>Male</option><option>Female</option><option>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div><label class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Location / Address</label><input type="text" id="edit-address" class="w-full bg-[#111] border border-gray-800 text-white rounded p-3 text-sm focus:border-netflix-red focus:outline-none"></div>
+                    <div><label class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Bio</label><textarea id="edit-bio" rows="3" class="w-full bg-[#111] border border-gray-800 text-white rounded p-3 text-sm focus:border-netflix-red focus:outline-none resize-none custom-scrollbar"></textarea></div>
+                    <button type="submit" class="w-full bg-netflix-red hover:bg-red-700 text-white font-bold py-3 rounded transition-colors tracking-wide mt-2">Save Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Cropper Modal -->
+        <div id="cropper-modal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-md z-[60] flex items-center justify-center animate-fade-in">
+            <div class="bg-[#141414] border border-gray-800 p-6 rounded-xl w-full max-w-md relative shadow-2xl flex flex-col items-center">
+                <h2 class="text-xl font-black text-white mb-4 tracking-tighter uppercase w-full text-left">Crop Picture</h2>
+                <div class="w-full max-w-sm aspect-square bg-black overflow-hidden rounded mb-4 border border-gray-800">
+                    <img id="cropper-image" src="" class="max-w-full block">
+                </div>
+                <div class="flex gap-4 w-full">
+                    <button onclick="closeCropper()" class="w-1/2 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded transition-colors">Cancel</button>
+                    <button onclick="applyCrop()" class="w-1/2 bg-netflix-red hover:bg-red-700 text-white font-bold py-3 rounded transition-colors">Crop & Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pick Favorite Modal -->
+        <div id="pick-fav-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in">
+            <div class="bg-[#141414] border border-gray-800 p-6 rounded-xl w-full max-w-2xl relative shadow-2xl max-h-[80vh] flex flex-col">
+                <button onclick="closeFavModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <h2 id="fav-modal-title" class="text-xl font-black text-white mb-4 tracking-tighter uppercase">Pick Favorite</h2>
+                <input type="text" id="fav-search-input" onkeyup="handleFavSearch(this.value)" placeholder="Search titles..." class="w-full bg-[#111] border border-gray-800 text-white rounded p-3 text-sm focus:border-netflix-red focus:outline-none mb-4">
+                <div id="fav-search-results" class="flex-grow overflow-y-auto custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 pr-2"></div>
+            </div>
+        </div>
+    <!-- Modals -->
+    <div id="create-quote-modal" class="fixed inset-0 z-[60] hidden bg-black/80 overflow-y-auto overflow-x-hidden backdrop-blur-md flex items-center justify-center">
+        <div class="fixed inset-0" onclick="closeCreateQuoteModal()"></div>
+        <div class="relative w-full max-w-lg bg-netflix-dark rounded-lg shadow-2xl p-8 border border-gray-800 z-10 mx-4">
+            <button onclick="closeCreateQuoteModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 class="text-2xl font-bold text-white mb-6">Add a Favorite Quote</h2>
+            <form id="create-quote-form" onsubmit="handleCreateQuote(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-1 font-medium">Quote</label>
+                        <textarea id="quote-text" required rows="4" placeholder='"I am the one who knocks."' class="w-full auth-input text-white rounded p-3 resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-1 font-medium">Movie or Series Title</label>
+                        <input type="text" id="quote-media" required placeholder="e.g., Breaking Bad" class="w-full auth-input text-white rounded p-3">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-1 font-medium">Character (Optional)</label>
+                        <input type="text" id="quote-character" placeholder="e.g., Walter White" class="w-full auth-input text-white rounded p-3">
+                    </div>
+                    <button type="submit" class="w-full bg-netflix-red hover:bg-red-700 text-white font-bold py-3 rounded mt-2 transition-colors">Save Quote</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="create-list-modal" class="fixed inset-0 z-[60] hidden bg-black/80 overflow-y-auto overflow-x-hidden backdrop-blur-md flex items-center justify-center">
+        <div class="fixed inset-0" onclick="closeCreateListModal()"></div>
+        <div class="relative w-full max-w-md bg-netflix-dark rounded-lg shadow-2xl p-8 border border-gray-800 z-10 mx-4">
+            <button onclick="closeCreateListModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 class="text-2xl font-bold text-white mb-6">Create a New List</h2>
+            <form id="create-list-form" onsubmit="handleCreateList(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-1 font-medium">List Name</label>
+                        <input type="text" id="list-name" required placeholder="e.g., Best Sci-Fi Movies" class="w-full auth-input text-white rounded p-3">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-1 font-medium">Description (Optional)</label>
+                        <textarea id="list-description" rows="3" placeholder="What is this list about?" class="w-full auth-input text-white rounded p-3 resize-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-netflix-red hover:bg-red-700 text-white font-bold py-3 rounded mt-2 transition-colors">Create List</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="add-media-modal" class="fixed inset-0 z-[60] hidden bg-black/80 overflow-y-auto overflow-x-hidden backdrop-blur-md flex items-center justify-center">
+        <div class="fixed inset-0" onclick="closeAddMediaModal()"></div>
+        <div class="relative w-full max-w-lg bg-netflix-dark rounded-lg shadow-2xl p-6 border border-gray-800 z-10 mx-4" onclick="event.stopPropagation()">
+            <button onclick="closeAddMediaModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 class="text-2xl font-bold text-white mb-4">Add Movie or Series</h2>
+            <div class="relative mb-4">
+                <input type="text" id="add-media-search" oninput="handleAddMediaSearch(this.value)" placeholder="Search all titles or directors..." class="w-full auth-input text-white rounded p-3 pl-10">
+                <i class="fa-solid fa-search absolute left-3 top-3.5 text-gray-500"></i>
+            </div>
+            <div id="add-media-results" class="max-h-80 overflow-y-auto custom-scrollbar flex flex-col gap-2"></div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in">
+        <div class="bg-[#141414] border border-gray-800 p-8 rounded-xl w-full max-w-md relative shadow-2xl">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 id="auth-title" class="text-3xl font-black text-white mb-6 tracking-tighter uppercase">Sign In</h2>
+            
+            <!-- Google One-Click -->
+            <button onclick="signInWithGoogle()" class="w-full bg-white text-black font-bold py-3 rounded mb-4 flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+                Continue with Google
+            </button>
+            
+            <div class="flex items-center my-4">
+                <div class="flex-grow border-t border-gray-800"></div>
+                <span class="px-3 text-gray-500 text-xs uppercase tracking-widest font-bold">Or Email</span>
+                <div class="flex-grow border-t border-gray-800"></div>
+            </div>
+
+            <!-- Email Registration / Login -->
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Email</label>
+                    <input type="email" id="auth-email" class="w-full bg-[#111] border border-gray-800 text-white rounded p-3 focus:outline-none focus:border-netflix-red" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Password</label>
+                    <input type="password" id="auth-password" class="w-full bg-[#111] border border-gray-800 text-white rounded p-3 focus:outline-none focus:border-netflix-red" required minlength="6">
+                </div>
+                
+                <p id="auth-error" class="text-netflix-red text-xs font-bold mb-4 hidden"></p>
+                
+                <button type="submit" id="auth-submit-btn" class="w-full bg-netflix-red hover:bg-red-700 text-white font-bold py-3 rounded transition-colors tracking-wide">Sign In</button>
+            </form>
+            <p class="text-gray-500 text-sm text-center mt-6">
+                <span id="auth-toggle-text">New to Prestige?</span> 
+                <a href="#" id="auth-toggle-link" onclick="toggleAuthMode()" class="text-white hover:underline font-bold">Sign up now.</a>
+            </p>
+        </div>
+    </div>
+    <!-- Firebase Auth & Firestore SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

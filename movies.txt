@@ -1,0 +1,418 @@
+const mockMovies = [
+    { id: 'm1', trending: true, type: 'movie', title: "The Godfather", year: "1972", rating: "R", director: "Francis Ford Coppola", genres: ["Crime", "Drama"], trailerId: "UaVTIH8mujA", poster: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_FMjpg_UY1982_.jpg", backdrop: "https://image.tmdb.org/t/p/original/tmU7GeKVybMWFButWEGl2M4GeiP.jpg", cast: ["Marlon Brando", "Al Pacino", "James Caan"], duration: "2h 55m", releaseDate: "1972-03-24", synopsis: "Spanning the years 1945 to 1955, a chronicle of the fictional Italian-American Corleone crime family..." },
+    { id: 'm2', trending: true, type: 'movie', title: "Fight Club", year: "1999", rating: "R", director: "David Fincher", genres: ["Drama", "Thriller"], trailerId: "qtRKdVHc-cE", poster: "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg", backdrop: "https://image.tmdb.org/t/p/original/hZkgoQYus5vesmIm9w1XPNqHkQz.jpg", cast: ["Brad Pitt", "Edward Norton", "Helena Bonham Carter"], duration: "2h 19m", releaseDate: "1999-10-15", synopsis: "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy..." },
+    { id: 'm3', trending: true, type: 'movie', title: "The Truman Show", year: "1998", rating: "PG", director: "Peter Weir", genres: ["Comedy", "Drama"], trailerId: "dlnmQbPGuls", poster: "https://m.media-amazon.com/images/M/MV5BNzA3ZjZlNzYtMTdjMy00NjMzLTk5ZGYtMTkyYzNiOGM1YmM3XkEyXkFqcGc@._V1_QL75_UX380_CR0,1,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Jim Carrey", "Ed Harris", "Laura Linney"], duration: "1h 43m", releaseDate: "1998-06-05", synopsis: "Truman Burbank is the star of The Truman Show, a 24-hour-a-day reality TV show that broadcasts every aspect of his life without his knowledge..." },
+    { id: 'm4', trending: true, type: 'movie', title: "The Shawshank Redemption", year: "1994", rating: "R", director: "Frank Darabont", genres: ["Drama", "Crime"], trailerId: "6hB3S9bIaco", poster: "https://m.media-amazon.com/images/M/MV5BMDAyY2FhYjctNDc5OS00MDNlLThiMGUtY2UxYWVkNGY2ZjljXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Tim Robbins", "Morgan Freeman", "Bob Gunton"], duration: "2h 22m", releaseDate: "1994-09-23", synopsis: "Framed in the 1940s for the double murder of his wife and her lover, upstanding banker Andy Dufresne begins a new life at the Shawshank prison..." },
+    { id: 'm5', trending: true, type: 'movie', title: "Parasite", year: "2019", rating: "R", director: "Bong Joon-ho", genres: ["Comedy", "Thriller"], trailerId: "5xH0HfJHsaY", poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg", backdrop: "https://image.tmdb.org/t/p/original/TU9NIjwzjoKPwQHoHshkFcQUCG.jpg", cast: ["Song Kang-ho", "Lee Sun-kyun", "Cho Yeo-jeong"], duration: "2h 12m", releaseDate: "2019-11-08", synopsis: "All unemployed, Ki-taek's family takes peculiar interest in the wealthy and glamorous Parks for their livelihood until they get entangled in an unexpected incident..." },
+    { id: 'm6', trending: true, type: 'movie', title: "The Godfather Part II", year: "1974", rating: "R", director: "Francis Ford Coppola", genres: ["Crime", "Drama"], trailerId: "9O1Iy9od7-A", poster: "https://m.media-amazon.com/images/M/MV5BMDIxMzBlZDktZjMxNy00ZGI4LTgxNDEtYWRlNzRjMjJmOGQ1XkEyXkFqcGc@._V1_QL75_UX280_CR0,3,280,414_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Al Pacino", "Robert De Niro", "Robert Duvall"], duration: "3h 22m", releaseDate: "1974-12-20", synopsis: "The early life and career of Vito Corleone in 1920s New York is portrayed, while his son, Michael, expands and tightens his grip on the family crime syndicate..." },
+    { id: 'm7', trending: true, type: 'movie', title: "Inception", year: "2010", rating: "PG-13", director: "Christopher Nolan", genres: ["Action", "Sci-Fi"], trailerId: "YoHD9XEInc0", poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg", cast: ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Elliot Page"], duration: "2h 28m", releaseDate: "2010-07-16", synopsis: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O..." },
+    { id: 'm8', trending: true, type: 'movie', title: "Avengers: Endgame", year: "2019", rating: "PG-13", director: "Anthony Russo, Joe Russo", genres: ["Action", "Adventure"], trailerId: "TcMBFSGVi1c", poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Robert Downey Jr.", "Chris Evans", "Mark Ruffalo"], duration: "3h 1m", releaseDate: "2019-04-26", synopsis: "After the devastating events of Avengers: Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more in order to reverse Thanos' actions and restore balance to the universe..." },
+    { id: 'm9', trending: false, type: 'movie', title: "Interstellar", year: "2014", rating: "PG-13", director: "Christopher Nolan", genres: ["Sci-Fi", "Drama"], trailerId: "zSWdZVtXT7E", poster: "https://m.media-amazon.com/images/M/MV5BYzdjMDAxZGItMjI2My00ODA1LTlkNzItOWFjMDU5ZDJlYWY3XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Matthew McConaughey", "Anne Hathaway", "Jessica Chastain"], duration: "2h 49m", releaseDate: "2014-11-07", synopsis: "When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans." },
+    { id: 'm10', trending: false, type: 'movie', title: "The Dark Knight", year: "2008", rating: "PG-13", director: "Christopher Nolan", genres: ["Action", "Crime", "Drama"], trailerId: "EXeTwQWrcwY", poster: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Christian Bale", "Heath Ledger", "Aaron Eckhart"], duration: "2h 32m", releaseDate: "2008-07-18", synopsis: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice." },
+    { id: 'm11', trending: false, type: 'movie', title: "The Matrix", year: "1999", rating: "R", director: "Lana Wachowski, Lilly Wachowski", genres: ["Action", "Sci-Fi"], trailerId: "vKQi3bBA1y8", poster: "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_QL75_UX380_CR0,1,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Keanu Reeves", "Laurence Fishburne", "Carrie-Anne Moss"], duration: "2h 16m", releaseDate: "1999-03-31", synopsis: "When a beautiful stranger leads computer hacker Neo to a forbidding underworld, he discovers the shocking truth--the life he knows is the elaborate deception of an evil cyber-intelligence." },
+    { id: 'm12', trending: false, type: 'movie', title: "Goodfellas", year: "1990", rating: "R", director: "Martin Scorsese", genres: ["Biography", "Crime", "Drama"], trailerId: "qo5jJpHtI1Y", poster: "https://m.media-amazon.com/images/M/MV5BN2E5NzI2ZGMtY2VjNi00YTRjLWI1MDUtZGY5OWU1MWJjZjRjXkEyXkFqcGc@._V1_QL75_UX380_CR0,3,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Robert De Niro", "Ray Liotta", "Joe Pesci"], duration: "2h 25m", releaseDate: "1990-09-21", synopsis: "The story of Henry Hill and his life in the mob, covering his relationship with his wife Karen Hill and his mob partners Jimmy Conway and Tommy DeVito in the Italian-American crime syndicate." },
+    { id: 'm13', trending: false, type: 'movie', title: "12 Angry Men", year: "1957", rating: "Approved", director: "Sidney Lumet", genres: ["Crime", "Drama"], trailerId: "A7CBKT0PWFA", poster: "https://m.media-amazon.com/images/M/MV5BYjE4NzdmOTYtYjc5Yi00YzBiLWEzNDEtNTgxZGQ2MWVkN2NiXkEyXkFqcGc@._V1_QL75_UX380_CR0,11,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Henry Fonda", "Lee J. Cobb", "Martin Balsam"], duration: "1h 36m", releaseDate: "1957-04-10", synopsis: "The defense and the prosecution have rested and the jury is filing into the jury room to decide if a young man is guilty or innocent of murdering his father." },
+    { id: 'm14', trending: false, type: 'movie', title: "The Shining", year: "1980", rating: "R", director: "Stanley Kubrick", genres: ["Drama", "Horror"], trailerId: "5Cb3ik6zP2I", poster: "https://m.media-amazon.com/images/M/MV5BNmM5ZThhY2ItOGRjOS00NzZiLWEwYTItNDgyMjFkOTgxMmRiXkEyXkFqcGc@._V1_QL75_UX380_CR0,8,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Jack Nicholson", "Shelley Duvall", "Danny Lloyd"], duration: "2h 26m", releaseDate: "1980-05-23", synopsis: "A family heads to an isolated hotel for the winter where a sinister presence influences the father into violence." },
+    { id: 'm15', trending: false, type: 'movie', title: "2001: A Space Odyssey", year: "1968", rating: "G", director: "Stanley Kubrick", genres: ["Adventure", "Sci-Fi"], trailerId: "oR_e9y-bka0", poster: "https://m.media-amazon.com/images/M/MV5BNjU0NDFkMTQtZWY5OS00MmZhLTg3Y2QtZmJhMzMzMWYyYjc2XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Keir Dullea", "Gary Lockwood", "William Sylvester"], duration: "2h 29m", releaseDate: "1968-04-03", synopsis: "After discovering a mysterious artifact buried beneath the lunar surface, mankind sets off on a quest to find its origins." },
+    { id: 'm16', trending: false, type: 'movie', title: "The Prestige", year: "2006", rating: "PG-13", director: "Christopher Nolan", genres: ["Drama", "Mystery", "Sci-Fi"], trailerId: "ijXruSzfGEc", poster: "https://m.media-amazon.com/images/M/MV5BM2Y0YmM5MWYtZTYzNi00ZjU5LTlmOGYtZDQ4ODQyMjAzNjQ2XkEyXkFqcGc@._V1_QL75_UX380_CR0,2,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Christian Bale", "Hugh Jackman", "Scarlett Johansson"], duration: "2h 10m", releaseDate: "2006-10-20", synopsis: "After a tragic accident, two stage magicians engage in a battle to create the ultimate illusion while sacrificing everything." },
+    { id: 'm17', trending: false, type: 'movie', title: "Incendies", year: "2010", rating: "R", director: "Denis Villeneuve", genres: ["Drama", "Mystery", "War"], trailerId: "XJ69WnwvZhE", poster: "https://m.media-amazon.com/images/M/MV5BYWFmMjdmNjctNzhhOC00ZmMzLTkwOGItMmVmZDU4MjE2MTYwXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Lubna Azabal", "Mélissa Désormeaux-Poulin", "Maxim Gaudette"], duration: "2h 11m", releaseDate: "2010-09-17", synopsis: "Twins journey to the Middle East to discover their family history and fulfill their mother's last wishes." },
+    { id: 'm18', trending: false, type: 'movie', title: "The Pianist", year: "2002", rating: "R", director: "Roman Polanski", genres: ["Biography", "Drama", "Music"], trailerId: "BFwGqLa_oAo", poster: "https://m.media-amazon.com/images/M/MV5BMjEwNmEwYjgtNTk3ZC00NjljLTg5ZDctZTY3ZGQwZjRkZmQxXkEyXkFqcGc@._V1_QL75_UY562_CR14,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Adrien Brody", "Thomas Kretschmann", "Frank Finlay"], duration: "2h 30m", releaseDate: "2002-12-25", synopsis: "A Polish Jewish musician struggles to survive the destruction of the Warsaw ghetto of World War II." },
+    { id: 'm20', trending: false, type: 'movie', title: "Memories of Murder", year: "2003", rating: "R", director: "Bong Joon-ho", genres: ["Crime", "Drama", "Mystery"], trailerId: "0n_HQwQU8ls", poster: "https://m.media-amazon.com/images/M/MV5BYmRjOWE5NmMtYTdkYS00ODFlLWJiMTMtYzE2NDZlZjlkZDQ0XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Song Kang-ho", "Kim Sang-kyung", "Kim Roi-ha"], duration: "2h 12m", releaseDate: "2003-05-02", synopsis: "In a small Korean province in 1986, two detectives struggle with the case of multiple young women being found murdered." },
+    { id: 'm21', trending: false, type: 'movie', title: "Oldboy", year: "2003", rating: "R", director: "Park Chan-wook", genres: ["Psychological Thriller", "Drama"], trailerId: "tAaBkFChaRg", poster: "https://m.media-amazon.com/images/M/MV5BMTAwNzNjYWItZmI0Ni00ZTcyLWIwNWMtZjlmNGMxZTEyYTJmXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Choi Min-sik", "Yoo Ji-tae", "Kang Hye-jeong"], duration: "2h 0m", releaseDate: "2003-11-21", synopsis: "After being kidnapped and imprisoned for fifteen years, Oh Dae-Su is released to track down his captor." },
+    { id: 'm22', trending: false, type: 'movie', title: "Donnie Darko", year: "2001", rating: "R", director: "Richard Kelly", genres: ["Psychological Thriller", "Drama"], trailerId: "bzLn8sYeM9o", poster: "https://m.media-amazon.com/images/M/MV5BMWE3NTYzZmEtM2U5MS00MDZhLTk2ZTQtZTgzNjg0ZGQ5ZjM0XkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Jake Gyllenhaal", "Jena Malone", "Mary McDonnell"], duration: "1h 53m", releaseDate: "2001-10-26", synopsis: "A troubled teenager is plagued by visions of a large bunny rabbit that manipulates him to commit crimes." },
+    { id: 'm23', trending: false, type: 'movie', title: "The Sixth Sense", year: "1999", rating: "PG-13", director: "M. Night Shyamalan", genres: ["Psychological Thriller", "Drama"], trailerId: "3-ZP95NF_Wk", poster: "https://m.media-amazon.com/images/M/MV5BZWQ2OTY0M2UtMTQxNC00MmIzLTllNDQtNDQ0MTQyYzI2M2ZiXkEyXkFqcGc@._V1_QL75_UY562_CR0,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Bruce Willis", "Haley Joel Osment", "Toni Collette"], duration: "1h 47m", releaseDate: "1999-08-06", synopsis: "A boy who communicates with spirits seeks the help of a disheartened child psychologist." },
+    { id: 'm24', trending: false, type: 'movie', title: "Dead Poets Society", year: "1989", rating: "PG", director: "Peter Weir", genres: ["Drama"], trailerId: "ye4KFyWu2do", poster: "https://m.media-amazon.com/images/M/MV5BMDYwNGVlY2ItMWYxMS00YjZiLWE5MTAtYWM5NWQ2ZWJjY2Q3XkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Robin Williams", "Robert Sean Leonard", "Ethan Hawke"], duration: "2h 8m", releaseDate: "1989-06-09", synopsis: "English teacher John Keating inspires his students to look at poetry with a different perspective." },
+    { id: 'm25', trending: false, type: 'movie', title: "Prisoners", year: "2013", rating: "R", director: "Denis Villeneuve", genres: ["Crime", "Drama", "Mystery"], trailerId: "bpXfcTF6iVk", poster: "https://m.media-amazon.com/images/M/MV5BMTg0NTIzMjQ1NV5BMl5BanBnXkFtZTcwNDc3MzM5OQ@@._V1_QL75_UY562_CR0,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Hugh Jackman", "Jake Gyllenhaal", "Viola Davis"], duration: "2h 33m", releaseDate: "2013-09-20", synopsis: "When Keller Dover's daughter goes missing, he takes matters into his own hands." }
+];
+
+const mockSeries = [
+          { 
+                id: 's1', trending: true, type: 'series', title: "Breaking Bad", year: "2008–2013", rating: "TV-MA", director: "Vince Gilligan", genres: ["Crime", "Drama", "Thriller"], trailerId: "HhesaQXLuRY", poster: "https://image.tmdb.org/t/p/w500/3xnWaLQjelJDDF7LT1WBo6f4BRe.jpg", synopsis: "A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine in order to secure his family's future.",
+                seasons: [
+                    {
+                        seasonNumber: 1,
+                        episodes: [
+                            { episodeNumber: 1, title: "Pilot" },
+                            { episodeNumber: 2, title: "Cat's in the Bag and the Bag's in the River" },
+                            { episodeNumber: 3, title: "And the Bag's in the River" },
+                            { episodeNumber: 4, title: "Cancer Man" },
+                            { episodeNumber: 5, title: "Gray Matter" },
+                            { episodeNumber: 6, title: "Crazy Handful of Nothin'" },
+                            { episodeNumber: 7, title: "A No-Rough-Stuff-Type Deal" }
+                        ]
+                    },
+                    {
+                        seasonNumber: 2,
+                        episodes: [
+                            { episodeNumber: 1, title: "Seven Thirty-Seven" },
+                            { episodeNumber: 2, title: "Grilled" },
+                            { episodeNumber: 3, title: "Bit by a Dead Bee" },
+                            { episodeNumber: 4, title: "Down" },
+                            { episodeNumber: 5, title: "Breakage" },
+                            { episodeNumber: 6, title: "Peekaboo" },
+                            { episodeNumber: 7, title: "Negro y Azul" },
+                            { episodeNumber: 8, title: "Better Call Saul" },
+                            { episodeNumber: 9, title: "4 Days Out" },
+                            { episodeNumber: 10, title: "Over" },
+                            { episodeNumber: 11, title: "Mandala" },
+                            { episodeNumber: 12, title: "Phoenix" },
+                            { episodeNumber: 13, title: "ABQ" }
+                        ]
+                    },
+                    {
+                        seasonNumber : 3,
+                        episodes: [
+                            {episodeNumber: 1, title: "No Mas" },
+                            { episodeNumber: 2, title: "Caballo sin Nombre" },
+                            { episodeNumber: 3, title: "I.F.T" },
+                            { episodeNumber: 4, title: "Green Light" },
+                            { episodeNumber: 5, title: "Mas" },
+                            { episodeNumber: 6, title: "Sunset" },
+                            { episodeNumber: 7, title: "One Minute" },
+                            { episodeNumber: 8, title: "I See You" },
+                            { episodeNumber: 9, title: "Kafkaesque" },
+                            { episodeNumber: 10, title: "Fly" },
+                            { episodeNumber: 11, title: "Abiqui" },
+                            { episodeNumber: 12, title: "Half Measures" },
+                            { episodeNumber: 13, title: "Full Measure" }
+
+                        ]
+                    },
+                    {
+                        seasonNumber: 4,
+                        episodes: [
+                            { episodeNumber: 1, title: "Box Cutter" },
+                            { episodeNumber: 2, title: "Thirty-Eight Snub" },
+                            { episodeNumber: 3, title: "Open House" },
+                            { episodeNumber: 4, title: "Bullet Points" },
+                            { episodeNumber: 5, title: "Shotgun" },
+                            { episodeNumber: 6, title: "Cornered" },
+                            { episodeNumber: 7, title: "Problem Dog" },
+                            { episodeNumber: 8, title: "Hermanos" },
+                            { episodeNumber: 9, title: "Bug" },
+                            { episodeNumber: 10, title: "Salud" },
+                            { episodeNumber: 11, title: "Crawl Space" },
+                            { episodeNumber: 12, title: "End Times" },
+                            { episodeNumber: 13, title: "Face Off" }
+                        ]
+                    },
+                    {
+                        seasonNumber: 5,
+                        episodes: [
+                            { episodeNumber: 1, title: "Live Free or Die" },
+                            { episodeNumber: 2, title: "Madrigal" },
+                            { episodeNumber: 3, title: "Hazard Pay" },
+                            { episodeNumber: 4, title: "Fifty-One" },
+                            { episodeNumber: 5, title: "Dead Freight" },
+                            { episodeNumber: 6, title: "Buyout" },
+                            { episodeNumber: 7, title: "Say My Name" },
+                            { episodeNumber: 8, title: "Gliding Over All" },
+                            { episodeNumber: 9, title: "Blood Money" },
+                            { episodeNumber: 10, title: "Buried" },
+                            { episodeNumber: 11, title: "Confessions" },
+                            { episodeNumber: 12, title: "Rabid Dog" },
+                            { episodeNumber: 13, title: "To'hajiilee" },
+                            { episodeNumber: 14, title: "Ozymandias" },
+                            { episodeNumber: 15, title: "Granite State" },
+                            { episodeNumber: 16, title: "Felina" }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 's2', trending: true, type: 'series', title: "Better Call Saul", year: "2015–2022", rating: "TV-MA", director: "Vince Gilligan, Peter Gould", genres: ["Crime", "Drama"], trailerId: "HN4oydykJFc", poster: "https://m.media-amazon.com/images/M/MV5BMTAxOTQ0MjUzMzJeQTJeQWpwZ15BbWU4MDY0NTAxNzMx._V1_QL75_UX380_CR0,0,380,562_.jpg", synopsis: "The trials and tribulations of criminal lawyer Jimmy McGill in the years leading up to his fateful run-in with Walter White and Jesse Pinkman.",
+                seasons: [
+                    {
+                        seasonNumber: 1,
+                        episodes: [
+                            { episodeNumber: 1, title: "Uno" },
+                            { episodeNumber: 2, title: "Mijo" },
+                            { episodeNumber: 3, title: "Nacho" },
+                            { episodeNumber: 4, title: "Hero" },
+                            { episodeNumber: 5, title: "Alpine Shepherd Boy" },
+                            { episodeNumber: 6, title: "Five-O" },
+                            { episodeNumber: 7, title: "Bingo" },
+                            { episodeNumber: 8, title: "RICO" },
+                            { episodeNumber: 9, title: "Pimento" },
+                            { episodeNumber: 10, title: "Marco" }
+                        ]
+                    },
+                    {
+                        seasonNumber: 2,
+                        episodes: [
+                            { episodeNumber: 1, title: "Switch" },
+                            { episodeNumber: 2, title: "Cobbler" },
+                            { episodeNumber: 3, title: "Amarillo" },
+                            { episodeNumber: 4, title: "Gloves Off" },
+                            { episodeNumber: 5, title: "Rebecca" },
+                            { episodeNumber: 6, title: "Bali Ha'i" },
+                            { episodeNumber: 7, title: "Inflatable" },
+                            { episodeNumber: 8, title: "Fifi" },
+                            { episodeNumber: 9, title: "Nailed" },
+                            { episodeNumber: 10, title: "Klick" }
+                        ]
+                    },
+                    {
+                        seasonNumber: 3,
+                        episodes: [
+                            { episodeNumber: 1, title: "Mabel" },
+                            { episodeNumber: 2, title: "Witness" },
+                            { episodeNumber: 3, title: "Sunk Costs" },
+                            { episodeNumber: 4, title: "Sabrosito" },
+                            { episodeNumber: 5, title: "Chicanery" },
+                            { episodeNumber: 6, title: "Off Brand" },
+                            { episodeNumber: 7, title: "Expenses" },
+                            { episodeNumber: 8, title: "Slip" },
+                            { episodeNumber: 9, title: "Fall" },
+                            { episodeNumber: 10, title: "Lantern" }
+                        ]
+                    },
+                    {
+                        seasonNumber: 4,
+                        episodes: [
+                            { episodeNumber: 1, title: "Smoke" },
+                            { episodeNumber: 2, title: "Breathe" },
+                            { episodeNumber: 3, title: "Something Beautiful" },
+                            { episodeNumber: 4, title: "Talk" },
+                            { episodeNumber: 5, title: "Quite a Ride" },
+                            { episodeNumber: 6, title: "Piñata" },
+                            { episodeNumber: 7, title: "Something Stupid" },
+                            { episodeNumber: 8, title: "Coushatta" },
+                            { episodeNumber: 9, title: "Wiedersehen" },
+                            { episodeNumber: 10, title: "Winner" }
+                        ]
+                    },
+                    {
+                        seasonNumber: 5,
+                        episodes: [
+                            { episodeNumber: 1, title: "Magic Man" },
+                            { episodeNumber: 2, title: "50% Off" },
+                            { episodeNumber: 3, title: "The Guy For This" },
+                            { episodeNumber: 4, title: "Namaste" },
+                            { episodeNumber: 5, title: "Dedicado a Max" },
+                            { episodeNumber: 6, title: "Wexler v. Goodman" },
+                            { episodeNumber: 7, title: "JMM" },
+                            { episodeNumber: 8, title: "Bagman" },
+                            { episodeNumber: 9, title: "Bad Choice Road" },
+                            { episodeNumber: 10, title: "Something Unforgivable" }
+                        ]
+                    },
+                    {
+                        seasonNumber: 6,
+                        episodes: [
+                            { episodeNumber: 1, title: "Wine and Roses" },
+                            { episodeNumber: 2, title: "Carrot and Stick" },
+                            { episodeNumber: 3, title: "Rock and Hard Place" },
+                            { episodeNumber: 4, title: "Hit and Run" },
+                            { episodeNumber: 5, title: "Black and Blue" },
+                            { episodeNumber: 6, title: "Axe and Grind" },
+                            { episodeNumber: 7, title: "Plan and Execution" },
+                            { episodeNumber: 8, title: "Point and Shoot" },
+                            { episodeNumber: 9, title: "Fun and Games" },
+                            { episodeNumber: 10, title: "Nippy" },
+                            { episodeNumber: 11, title: "Breaking Bad" },
+                            { episodeNumber: 12, title: "Waterworks" },
+                            { episodeNumber: 13, title: "Saul Gone" }
+                        ]
+                    }
+                ]
+            },
+            { id: 's3', trending: true, type: 'series', title: "Succession", year: "2018–2023", rating: "TV-MA", director: "Jesse Armstrong", genres: ["Drama", "Dark Comedy"], trailerId: "OzYxJV_rmE8", poster: "https://m.media-amazon.com/images/M/MV5BYTY4YTVkY2QtMjRmOS00YzliLWIxOWQtMTdkOTVkN2UzODNmXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg", synopsis: "The Roy family is known for controlling the biggest media and entertainment company in the world. However, their world changes when their father steps down from the company.", 
+            seasons: [
+                {
+                    seasonNumber: 1,
+                    episodes: [
+                        { episodeNumber: 1, title: "Celebration" },
+                        { episodeNumber: 2, title: "Sh*t Show at the F**k Factory" },
+                        { episodeNumber: 3, title: "Lifeboats" },
+                        { episodeNumber: 4, title: "Sad Sack Wasp Trap" },
+                        { episodeNumber: 5, title: "I Went to Market" },
+                        { episodeNumber: 6, title: "Which Side Are You On?" },
+                        { episodeNumber: 7, title: "Austerlitz" },
+                        { episodeNumber: 8, title: "Prague" },
+                        { episodeNumber: 9, title: "Pre-Nuptial" },
+                        { episodeNumber: 10, title: "Nobody Is Ever Missing" }
+                    ]
+                },
+                {
+                    seasonNumber: 2,
+                    episodes: [
+                        { episodeNumber: 1, title: "The Summer Palace" },
+                        { episodeNumber: 2, title: "Vaulter" },
+                        { episodeNumber: 3, title: "Hunting" },
+                        { episodeNumber: 4, title: "Safe Room" },
+                        { episodeNumber: 5, title: "Tern Haven" },
+                        { episodeNumber: 6, title: "Argestes" },
+                        { episodeNumber: 7, title: "Return" },
+                        { episodeNumber: 8, title: "Dundee" },
+                        { episodeNumber: 9, title: "DC" },
+                        { episodeNumber: 10, title: "This Is Not for Tears" }
+                    ]
+                },
+                {
+                    seasonNumber: 3,
+                    episodes: [
+                        { episodeNumber: 1, title: "Secession" },
+                        { episodeNumber: 2, title: "Mass in Time of War" },
+                        { episodeNumber: 3, title: "The Disruption" },
+                        { episodeNumber: 4, title: "Lion in the Meadow" },
+                        { episodeNumber: 5, title: "Retired Janitors of Idaho" },
+                        { episodeNumber: 6, title: "What It Takes" },
+                        { episodeNumber: 7, title: "Too Much Birthday" },
+                        { episodeNumber: 8, title: "Chiantishire" },
+                        { episodeNumber: 9, title: "All the Bells Say" }
+                    ]
+                },
+                {
+                    seasonNumber: 4,
+                    episodes: [
+                        { episodeNumber: 1, title: "The Munsters" },
+                        { episodeNumber: 2, title: "Rehearsal" },
+                        { episodeNumber: 3, title: "Connor's Wedding" },
+                        { episodeNumber: 4, title: "Honeymoon States" },
+                        { episodeNumber: 5, title: "Kill List" },
+                        { episodeNumber: 6, title: "Living+" },
+                        { episodeNumber: 7, title: "Tailgate Party" },
+                        { episodeNumber: 8, title: "America Decides" },
+                        { episodeNumber: 9, title: "All the Bells Say" },
+                        { episodeNumber: 10, title: "With Open Eyes" }
+                    ]
+
+                }
+            ] },
+            { id: 's4', trending: true, type: 'series', title: "Loki", year: "2021–2023", rating: "TV-14", director: "Michael Waldron", genres: ["Sci-Fi", "Fantasy", "Action"], trailerId: "nW948Va-l10", poster: "https://image.tmdb.org/t/p/w500/voHUmluYmKyleFkTu3lOXQG702u.jpg", synopsis: "After stealing the Tesseract during the events of 'Avengers: Endgame,' an alternate version of Loki is brought to the mysterious Time Variance Authority, a bureaucratic organization that exists outside of time and space and monitors the timeline.", 
+            seasons: [
+                {
+                    seasonNumber: 1,
+                    episodes: [
+                        { episodeNumber: 1, title: "Glorious Purpose" },
+                        { episodeNumber: 2, title: "The Variant" },
+                        { episodeNumber: 3, title: "Lamentis" },
+                        { episodeNumber: 4, title: "The Nexus Event" },
+                        { episodeNumber: 5, title: "Journey into Mystery" },
+                        { episodeNumber: 6, title: "For All Time. Always." }
+                    ]
+                },
+                {
+                    seasonNumber: 2,
+                    episodes: [
+                        { episodeNumber: 1, title: "The Variant Returns" },
+                        { episodeNumber: 2, title: "The Multiverse Unleashed" },
+                        { episodeNumber: 3, title: "Temporal Turmoil" },
+                        { episodeNumber: 4, title: "The Nexus Crisis" },
+                        { episodeNumber: 5, title: "Loki's Gambit" },
+                        { episodeNumber: 6, title: "For All Time. Always." }
+                    ]
+                }
+            ] },
+            { id: 's5', trending: true, type: 'series', title: "From", year: "2022–Present", rating: "TV-MA", director: "John Griffin", genres: ["Mystery", "Sci-Fi", "Horror"], trailerId: "pDHqAj4eJcM", poster: "https://m.media-amazon.com/images/M/MV5BNDAwNDljNWEtNWE1Zi00YjFlLWEzM2UtY2E3ZTM1MTcxMTcyXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg", synopsis: "Unravel the mystery of a nightmarish town in middle America that traps all those who enter. As the unwilling residents fight to keep a sense of normalcy and search for a way out, they must also survive the threats of the surrounding forest.", 
+            seasons: [
+                {
+                    seasonNumber: 1,
+                    episodes: [
+                        { episodeNumber: 1, title: "Long Day's Journey into Night" },
+                        { episodeNumber: 2, title: "The Way Things Are Now" },
+                        { episodeNumber: 3, title: "Choosing Day" },
+                        { episodeNumber: 4, title: "A Rock and a Farway" },
+                        { episodeNumber: 5, title: "Silhouettes" },
+                        { episodeNumber: 6, title: "Book 74" },
+                        { episodeNumber: 7, title: "All Good Things" },
+                        { episodeNumber: 8, title: "Broken Windows, Open Door" },
+                        { episodeNumber: 9, title: "Into the Woods" },
+                        { episodeNumber: 10, title: "Oh, the Places We'll Go" }
+                    ]
+                },
+                {
+                    seasonNumber:2,
+                    episodes: [
+                        { episodeNumber: 1, title: "Strangers in a Strange Land"},
+                        { episodeNumber: 2, title: "The Kindness of Strangers"},
+                        { episodeNumber: 3, title: "Tether"},
+                        { episodeNumber: 4, title: "This Way Gone" },
+                        { episodeNumber: 5, title: "Lullaby" },
+                        { episodeNumber: 6, title: "Pas De Deux" },
+                        { episodeNumber: 7, title: "Belly of the Beast" },
+                        { episodeNumber: 8, title: "Forest for the Trees" },
+                        { episodeNumber: 9, title: "Ball of the Magic Fire" },
+                        { episodeNumber: 10, title: "Once Upon a Time.." },
+                    ]
+                },
+                {
+                    seasonNumber: 3,
+                    episodes: [
+                        { episodeNumber: 1, title: "Shatter" },
+                        { episodeNumber: 2, title: "When We GO" },
+                        { episodeNumber: 3, title: "Mouse Trap" },
+                        { episodeNumber: 4, title: "There and Back Again"},
+                        { episodeNumber: 5, title: "The Light of Day" },
+                        { episodeNumber: 6, title: "Scar Tissue" },
+                        { episodeNumber: 7, title: "These Fragile Lives" },
+                        { episodeNumber: 8, title: "Thresholds" },
+                        { episodeNumber: 9, title: "Revelations: Chapter One" },
+                        { episodeNumber: 10, title: "Revelations: Chapter Two" },
+                    ]
+                },
+                {
+                    seasonNumber: 4,
+                    episodes:[
+                        { episodeNumber: 1, title: "The Arrival" },
+                        { episodeNumber: 2, title: "Fray" },
+                        { episodeNumber: 3, title: "Merrily We Go" },
+                        { episodeNumber: 4, title: "Of Myths and Monsters" },
+                        { episodeNumber: 5, title: "What a Long Strange Trip It's Been" },
+                        { episodeNumber: 6, title: "The Heart is a Lonely Hunter" },
+                        { episodeNumber: 7, title: "Best Laid Plans" },
+                        { episodeNumber: 8, title: "heavy is the Head" },
+                        { episodeNumber: 9, title: "The Calm Before" },
+                        { episodeNumber: 10, title: "If a Tree Falls in the Forest" },
+                    ]
+                }
+            ] },
+            { id: 's6', trending: true, type: 'series', title: "Prison Break", year: "2005–2017", rating: "TV-14", director: "Paul Scheuring", genres: ["Action", "Crime", "Drama"], trailerId: "AL9zLctDJaU", poster: "https://m.media-amazon.com/images/M/MV5BMjE0ODQxNjI2MV5BMl5BanBnXkFtZTYwNTgzMzg3._V1_QL75_UY562_CR13,0,380,562_.jpg", synopsis: "Due to a political conspiracy, an innocent man is sent to death row and his only hope is his brother, who makes it his mission to deliberately get himself sent to the same prison in order to break the both of them out from the inside.", seasons: [] },
+            { id: 's7', trending: true, type: 'series', title: "Chernobyl", year: "2019", rating: "TV-MA", director: "Craig Mazin", genres: ["Drama", "History"], trailerId: "s9APLXM9Ei8", poster: "https://m.media-amazon.com/images/M/MV5BNzU0OTI4YTQtNGQ1ZS00ZjA4LTg3MTMtZjkyZWNjN2RiZDJmXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg", synopsis: "In April 1986, an explosion at the Chernobyl nuclear power plant in the Soviet Union becomes one of the world's worst man-made catastrophes. This series explores the disaster and its aftermath.",
+             seasons: [
+                {
+                    seasonNumber: 1,
+                    episodes: [
+                        { episodeNumber: 1, title: "1:23:45" },
+                        { episodeNumber: 2, title: "Please Remain Calm" },
+                        { episodeNumber: 3, title: "Open Wide, O Earth" },
+                        { episodeNumber: 4, title: "The Happiness of All Mankind" },
+                        { episodeNumber: 5, title: "Vichnaya Pamyat"}
+                ]
+
+                }
+                ]
+            },
+   
+    { id: 's8', trending: true, type: 'series', title: "Suits", year: "2011–2019", rating: "TV-14", director: "Aaron Korsh", genres: ["Drama"], trailerId: "xJFHo-MOHh0", poster: "https://m.media-amazon.com/images/M/MV5BYmE4MmNjZjUtNTEyNy00NTZiLWE4NTktYjM2NjBhYzQ1N2IzXkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Gabriel Macht", "Patrick J. Adams", "Meghan Markle"], duration: "44m per ep", releaseDate: "2011-06-23", synopsis: "Mike Ross finds himself working with Harvey Specter, one of New York City's best lawyers.", seasons: [] },
+    { id: 's9', trending: false, type: 'series', title: "The Sopranos", year: "1999–2007", rating: "TV-MA", director: "David Chase", genres: ["Crime", "Drama"], trailerId: "KMx4iFcozK0", poster: "https://m.media-amazon.com/images/M/MV5BZjYwNWQwOTMtMzYwOS00NTcxLWFhNTYtNGQ4YjdmYTcyNDFkXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["James Gandolfini", "Lorraine Bracco", "Edie Falco"], duration: "55m per ep", releaseDate: "1999-01-10", synopsis: "New Jersey mob boss Tony Soprano deals with personal and professional issues.", seasons: [] },
+    { id: 's10', trending: false, type: 'series', title: "The Wire", year: "2002–2008", rating: "TV-MA", director: "David Simon", genres: ["Crime", "Drama", "Thriller"], trailerId: "1S5khOZ1wBs", poster: "https://m.media-amazon.com/images/M/MV5BYjIxZTMwZmUtOTUzYS00YmU2LWJhNDAtNzA2NDg0NDA0MjVkXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Dominic West", "Lance Reddick", "Sonja Sohn"], duration: "60m per ep", releaseDate: "2002-06-02", synopsis: "The Baltimore drug scene, as seen through the eyes of drug dealers and law enforcement.", seasons: [] },
+    { id: 's11', trending: false, type: 'series', title: "True Detective", year: "2014–Present", rating: "TV-MA", director: "Nic Pizzolatto", genres: ["Crime", "Drama", "Mystery"], trailerId: "fVQUcaO4AvE", poster: "https://m.media-amazon.com/images/M/MV5BYjgwYzA1NWMtNDYyZi00ZGQyLWI5NTktMDYwZjE2OTIwZWEwXkEyXkFqcGc@._V1_QL75_UY562_CR11,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Matthew McConaughey", "Woody Harrelson", "Mahershala Ali"], duration: "55m per ep", releaseDate: "2014-01-12", synopsis: "Police investigations unearth the personal and professional secrets of those involved.", seasons: [] },
+    { id: 's12', trending: false, type: 'series', title: "Mad Men", year: "2007–2015", rating: "TV-14", director: "Matthew Weiner", genres: ["Drama"], trailerId: "m7NChV93LBw", poster: "https://m.media-amazon.com/images/M/MV5BYTNjNjc5OWQtYjMxNC00MzEwLWIxM2UtNjU3NzhkNjZmNGI3XkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Jon Hamm", "Elisabeth Moss", "Vincent Kartheiser"], duration: "47m per ep", releaseDate: "2007-07-19", synopsis: "A drama about one of New York's most prestigious ad agencies in the 1960s.", seasons: [] },
+    { id: 's13', trending: false, type: 'series', title: "Band of Brothers", year: "2001", rating: "TV-MA", director: "Steven Spielberg, Tom Hanks", genres: ["Action", "Drama", "History"], trailerId: "KKRBAFlN5ww", poster: "https://m.media-amazon.com/images/M/MV5BMDJhYWQ2OWYtOWQ0ZC00OGFhLTgxMjQtMzUxZTVmMDYyNWNjXkEyXkFqcGc@._V1_FMjpg_UX305_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Scott Grimes", "Damian Lewis", "Ron Livingston"], duration: "50m per ep", releaseDate: "2001-09-09", synopsis: "The story of Easy Company of the U.S. Army 101st Airborne division in WWII Europe.", seasons: [] },
+    { id: 's14', trending: false, type: 'series', title: "Sherlock", year: "2010–2017", rating: "TV-14", director: "Mark Gatiss, Steven Moffat", genres: ["Crime", "Drama", "Mystery"], trailerId: "y9ZouUyPKx8", poster: "https://m.media-amazon.com/images/M/MV5BMjRhZDdjMDYtMTg5Yy00NGI4LWI3ZDgtYjNkNDc4MzJkNDRjXkEyXkFqcGc@._V1_QL75_UY562_CR22,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Benedict Cumberbatch", "Martin Freeman", "Una Stubbs"], duration: "1h 28m per ep", releaseDate: "2010-07-25", synopsis: "A modern update finds the famous sleuth solving crime in 21st century London.", seasons: [] },
+    { id: 's15', trending: false, type: 'series', title: "The Walking Dead", year: "2010–2022", rating: "TV-MA", director: "Frank Darabont", genres: ["Drama", "Horror", "Thriller"], trailerId: "cu2ApTImBKc", poster: "https://m.media-amazon.com/images/M/MV5BYWQwMGRhNGEtZTNhMy00MzVjLWJhMjItYjcwMDljMTkyNTg2XkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Andrew Lincoln", "Norman Reedus", "Melissa McBride"], duration: "44m per ep", releaseDate: "2010-10-31", synopsis: "Rick Grimes leads a group of survivors in a post-apocalyptic world.", seasons: [] },
+    { id: 's16', trending: false, type: 'series', title: "Spider-Noir", year: "2026", rating: "TV-14", director: "Oren Uziel", genres: ["Action", "Adventure"], trailerId: "e5QW457407U", poster: "https://m.media-amazon.com/images/M/MV5BYjU3NjEwNTItMzc1Mi00Y2QyLTljNDItOTQ4YjU4NjZjN2EyXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Nicolas Cage", "Lamorne Morris", "Brendan Gleeson"], duration: "TBD", releaseDate: "2026-01-01", synopsis: "Ben Reilly, a down-on-his-luck investigator in 1930s New York, grapples with his past as superhero.", seasons: [] },
+    { id: 's17', trending: false, type: 'series', title: "Lanterns", year: "2026", rating: "TV-14", director: "Chris Mundy, Damon Lindelof", genres: ["Action", "Adventure"], trailerId: "7UIBOsuUwc4", poster: "https://m.media-amazon.com/images/M/MV5BM2ZjZDNlNDgtMjJlMy00NGRjLThlMGEtM2U4N2E4MDUwNjNmXkEyXkFqcGc@._V1_QL75_UY562_CR28,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Aaron Pierre", "Kyle Chandler"], duration: "TBD", releaseDate: "2026-01-01", synopsis: "Two intergalactic cops are drawn into a dark mystery in the American heartland.", seasons: [] },
+    { id: 's18', trending: false, type: 'series', title: "The Office", year: "2005–2013", rating: "TV-14", director: "Greg Daniels", genres: ["Sitcom", "Comedy"], trailerId: "tNcDHWpselE", poster: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Steve Carell", "Rainn Wilson", "John Krasinski"], duration: "22m per ep", releaseDate: "2005-03-24", synopsis: "A mockumentary on a group of typical office workers in Scranton, Pennsylvania.", seasons: [] },
+    { id: 's19', trending: false, type: 'series', title: "Scam 1992: The Harshad Mehta Story", year: "2020", rating: "TV-14", director: "Hansal Mehta", genres: ["Crime", "Drama"], trailerId: "ISORfez27og", poster: "https://m.media-amazon.com/images/M/MV5BNGRkOTVjODgtNTBmZS00MDQ3LWE3ZjQtM2ZiNDQ3OWJkMjM2XkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Pratik Gandhi", "Shreya Dhanwanthary", "Hemant Kher"], duration: "50m per ep", releaseDate: "2020-10-09", synopsis: "Chronicles the meteoric rise and fall of stockbroker Harshad Mehta in 1990s Bombay.", seasons: [] },
+    { id: 's20', trending: false, type: 'series', title: "The Last of Us", year: "2023–Present", rating: "TV-MA", director: "Craig Mazin, Neil Druckmann", genres: ["Action", "Drama", "Horror"], trailerId: "uLtkt8BonwM", poster: "https://m.media-amazon.com/images/M/MV5BYWI3ODJlMzktY2U5NC00ZjdlLWE1MGItNWQxZDk3NWNjN2RhXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Pedro Pascal", "Bella Ramsey", "Gabriel Luna"], duration: "50m per ep", releaseDate: "2023-01-15", synopsis: "Joel is tasked with escorting Ellie across a post-apocalyptic United States.", seasons: [] },
+    { id: 's21', trending: false, type: 'series', title: "Dexter", year: "2006–2013", rating: "TV-MA", director: "James Manos Jr.", genres: ["Crime", "Drama", "Mystery"], trailerId: "YQeUmSD1c3g", poster: "https://m.media-amazon.com/images/M/MV5BNTE5ZGI2N2UtYmFiMi00ZGIxLWI1ZTMtYWJkZDYxNDZiOTQwXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Michael C. Hall", "Jennifer Carpenter", "David Zayas"], duration: "55m per ep", releaseDate: "2006-10-01", synopsis: "Dexter Morgan leads a secret life as a vigilante serial killer targeting criminals.", seasons: [] },
+    { id: 's22', trending: false, type: 'series', title: "Friends", year: "1994–2004", rating: "TV-14", director: "David Crane, Marta Kauffman", genres: ["Sitcom", "Comedy"], trailerId: "Zg2LCD5QOJs", poster: "https://m.media-amazon.com/images/M/MV5BOTU2YmM5ZjctOGVlMC00YTczLTljM2MtYjhlNGI5YWMyZjFkXkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Jennifer Aniston", "Courteney Cox", "Lisa Kudrow"], duration: "22m per ep", releaseDate: "1994-09-22", synopsis: "Follow the lives of six friends living in Manhattan as they navigate love and careers.", seasons: [] },
+    { id: 's23', trending: false, type: 'series', title: "Narcos", year: "2015–2017", rating: "TV-MA", director: "Chris Brancato", genres: ["Crime", "Drama", "Thriller"], trailerId: "xl8zdCY-abw", poster: "https://m.media-amazon.com/images/M/MV5BNzQwOTcwMzIwN15BMl5BanBnXkFtZTgwMjYxMTA0NjE@._V1_QL75_UX380_CR0,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Pedro Pascal", "Wagner Moura", "Boyd Holbrook"], duration: "49m per ep", releaseDate: "2015-08-28", synopsis: "The true story of Colombia's infamously violent drug cartels.", seasons: [] },
+    { id: 's24', trending: false, type: 'series', title: "Peaky Blinders", year: "2013–2022", rating: "TV-MA", director: "Steven Knight", genres: ["Crime", "Drama"], trailerId: "oVzVdvGIC7U", poster: "https://m.media-amazon.com/images/M/MV5BOGM0NGY3ZmItOGE2ZC00OWIxLTk0N2EtZWY4Yzg3ZDlhNGI3XkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Cillian Murphy", "Paul Anderson", "Helen McCrory"], duration: "60m per ep", releaseDate: "2013-09-12", synopsis: "A gangster family epic set in 1919 Birmingham, England centered on the Shelby gang.", seasons: [] }
+];
+
+const mockUpcomingMovies = [
+    { id: 'u1', type: 'movie', title: "Avengers: Doomsday", year: "2026", rating: "PG-13", director: "Anthony Russo, Joe Russo", genres: ["Action", "Adventure"], trailerId: "irVNGjRFZGk&t=15s", poster: "https://m.media-amazon.com/images/M/MV5BNGEwYWZkN2UtOTQ5Mi00MGQzLWEzNjYtMWMyNDBkMTkzMWNkXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Robert Downey Jr.", "Pedro Pascal", "Vanessa Kirby"], duration: "TBD", releaseDate: "2026-05-01", synopsis: "Heroes from three different worlds must unite when they're thrust together to confront a catastrophic danger that could destroy everything they know." },
+    { id: 'u2', type: 'movie', title: "Dune: Part 3", year: "2026", rating: "PG-13", director: "Denis Villeneuve", genres: ["Adventure", "Drama"], trailerId: "NdvqHc56lE0", poster: "https://m.media-amazon.com/images/M/MV5BYjk1NjgwZDMtYzI5OS00Y2Q4LWI1NmItNTE5OGU2NDVmMTAxXkEyXkFqcGc@._V1_QL75_UY562_CR35,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Timothée Chalamet", "Zendaya", "Florence Pugh"], duration: "TBD", releaseDate: "2026-12-18", synopsis: "Emperor Paul Atreides faces the fallout from his ascent to power as political plots and a galaxy-wide holy war endanger the future only he can see." },
+    { id: 'u3', type: 'movie', title: "Godzilla: Minus Zero", year: "2026", rating: "PG-13", director: "Takashi Yamazaki", genres: ["Action", "Sci-Fi"], trailerId: "kw0YhiqOPFg", poster: "https://m.media-amazon.com/images/M/MV5BYzY2OWFhMTgtODJhMi00NDIyLWIzNTQtYjc4MjE4YTBjYzllXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Ryunosuke Kamiki", "Minami Hamabe", "Yuki Yamada"], duration: "TBD", releaseDate: "2026-11-03", synopsis: "Set in 1949, the Shikishima family confronts a fresh catastrophe two years after surviving their previous ordeal with the legendary monster." },
+    { id: 'u4', type: 'movie', title: "Ramayana", year: "2026", rating: "PG-13", director: "Nitesh Tiwari", genres: ["Action", "Adventure"], trailerId: "1zip1rNaNYs", poster: "https://m.media-amazon.com/images/M/MV5BNzUyZWNmZTktZmE0OS00YjY4LWFjY2QtMTgzNTM5MjBlNzJlXkEyXkFqcGc@._V1_QL75_UY562_CR35,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Ranbir Kapoor", "Sai Pallavi", "Yash"], duration: "TBD", releaseDate: "2026-10-23", synopsis: "The epic tale of Prince Rama, his wife Sita, and his loyal brother Lakshmana as they battle the demon king Ravana to rescue Sita and restore dharma." },
+    { id: 'u5', type: 'movie', title: "Clayface", year: "2026", rating: "PG-13", director: "James Watkins", genres: ["Sci-fi", "Horror"], trailerId: "KCR-rz0YfD4", poster: "https://m.media-amazon.com/images/M/MV5BYTAyMjgxZjctMjRjNC00Zjg1LWJiNzctMDkxYzk0NWVmODMwXkEyXkFqcGc@._V1_QL75_UY562_CR35,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["TBD"], duration: "TBD", releaseDate: "2026-10-09", synopsis: "In a world where villains are heroes and heroes are villains, a new antihero emerges to challenge the status quo and redefine what it means to be a hero." },
+    { id: 'u6', type: 'movie', title: "Artificial", year: "2026", rating: "PG-13", director: "Luca Guadagnino", genres: ["Biopic", "Drama"], trailerId: "_Wv9oLUe740", poster: "https://m.media-amazon.com/images/M/MV5BN2U2MGRkMzAtZGYwMC00MzM4LThiMzQtNWEyZTcxNTJhNDA2XkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["TBD"], duration: "TBD", releaseDate: "2026-08-14", synopsis: "Follows the confusing firing and rehiring cycle of Sam Altman at OpenAI where the board gained control of the company and removed him." },
+    { id: 'u7', type: 'movie', title: "Drishyam: The Conclusion", year: "2026", rating: "PG-13", director: "Jeethu Joseph", genres: ["Crime", "Drama"], trailerId: "BSZZwBaNQAA", poster: "https://m.media-amazon.com/images/M/MV5BMzJlNzY1MTQtM2VmMy00OWQ4LTk0ZDQtODZiODUwMWZkZWYyXkEyXkFqcGc@._V1_QL75_UY562_CR35,0,380,562_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Mohanlal", "Meena", "Ansiba Hassan"], duration: "TBD", releaseDate: "2026-12-20", synopsis: "The story continues with Georgekutty and his family facing new challenges and threats as they try to maintain their peaceful life." },
+    { id: 'u8', type: 'movie', title: "Jailer 2", year: "2026", rating: "PG-13", director: "Nelson Dilipkumar", genres: ["Action", "Comedy"], trailerId: "FCT4hDYZRRY", poster: "https://m.media-amazon.com/images/M/MV5BNzY4YzRkOGMtNTMzMy00YWU4LTlkOTAtNmQ1NjQ0NTc0NTdhXkEyXkFqcGc@._V1_FMjpg_UX340_.jpg", backdrop: "https://image.tmdb.org/t/p/original/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg", cast: ["Rajinikanth", "Shiva Rajkumar", "Mohanlal"], duration: "TBD", releaseDate: "2026-08-10", synopsis: "The story follows the adventures of a retired jailer who is pulled back into action when a new threat emerges, testing his skills." }
+];
+
+const allMedia = [...mockMovies, ...mockSeries, ...mockUpcomingMovies];
